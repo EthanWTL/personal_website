@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tianlong Wang</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <!-- Header / Hero -->
+    <header class="header">
+      <div class="info">
+        <h1 class="name">Tianlong Wang</h1>
+        <div class="key-terms">Reasoning • Generative AI • LLM Agent • Video Generation</div>
+
+        <ul class="list edu" aria-label="education">
+          <li>
+            <span class="ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 3l9 4.5-9 4.5L3 7.5 12 3zm0 7.73l6-3v4.52c0 .9-.5 1.72-1.3 2.15L12 17l-4.7-2.6A2.4 2.4 0 016 12.75V7.73l6 3z"/></svg>
+            </span>
+            Ph.D. Student in Data Science, University of Virginia
+          </li>
+        </ul>
+
+        <div class="email">
+          <span class="ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M20 6H4a2 2 0 00-2 2v8a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zm-1.4 2L12 12.25 5.4 8h13.2zM4 16V9.2l7.4 4.6c.37.23.83.23 1.2 0L20 9.2V16H4z"/></svg>
+          </span>
+          <a href="">ethan.wang.cs[at]gmail.com</a>
+        </div>
+
+        <nav class="contact" aria-label="external links">
+          <a href="https://scholar.google.com/citations?user=3X2_urAAAAAJ&hl=en">Google Scholar</a>
+          <a href="#">GitHub</a>
+        </nav>
+      </div>
+
+      <img class="portrait" src="asset/tlw.jpg" alt="Portrait of Your Name" />
+    </header>
+
+    <section id="about">
+      <h2>About</h2>
+      <p><em>Tianlong Wang</em> is a second-year Ph.D. student in the RISE Lab, School of Data Science, University of Virginia, advised by <em>Prof. Sheng Li</em>. His research focuses on spatial reasoning and planning for video generation and LLM agents; current work targets continuous-control generation via video models.</p>
+    </section>
+
+    <section id="projects">
+      <h2>Projects</h2>
+
+      <ul class="list media project-list">
+        <!-- Project 1 -->
+        <li class="project-card">
+          <div class="item-body">
+            <div class="project-title">Observe reasoning ability from video generation model</div>
+            <p>
+              Video generation models such as CogVideo and NOVA are adapted and fine-tuned to
+              solve maze tasks, with solutions represented in optical-flow format. Performance
+              on these tasks indicates an emergent capacity for reasoning.
+            </p>
+          </div>
+
+          <!-- Three-up media grid with per-figure captions -->
+          <div class="project-media media-grid">
+            <figure class="media-item">
+              <img class="media-img" src="asset/maze_tensor_6.gif" alt="Optical-flow solution animation">
+              <figcaption class="media-caption">CogVideo generate the correct solution.</figcaption>
+            </figure>
+
+            <figure class="media-item">
+              <img class="media-img" src="asset/maze_00006.png" alt="Static frame of maze trajectory">
+              <figcaption class="media-caption">The input maze image.</figcaption>
+            </figure>
+
+            <figure class="media-item">
+              <img class="media-img" src="asset/shortestpath.gif" alt="Shortest-path animation">
+              <figcaption class="media-caption">The shortest path tasks demonstration.</figcaption>
+            </figure>
+          </div>
+        </li>
+
+        <!-- Project 2 -->
+        <li class="project-card">
+          <div class="item-body">
+            <div class="project-title">Create semantic rich trajectory with video generation models</div>
+            <p>
+              Craft a natural, semantically rich trajectory dataset within 3DGS environment.
+              Prompts are intentionally implicit—rather than merely reaching a single goal,
+              success depends on the quality of executing open-ended tasks.
+            </p>
+          </div>
+
+          <!-- Three-up media grid with per-figure captions -->
+          <div class="project-media media-grid">
+            <figure class="media-item">
+              <img class="media-img" src="asset/output_manual_downsampled.gif" alt="Generated trajectory demo">
+              <figcaption class="media-caption">"Salesman providing an energetic room tour".</figcaption>
+            </figure>
+
+            <figure class="media-item">
+              <img class="media-img" src="asset/structure.png" alt="Scene structure visualization">
+              <figcaption class="media-caption">Parsed room structure and connectivity.</figcaption>
+            </figure>
+
+            <figure class="media-item">
+              <img class="media-img" src="asset/blender.png" alt="Blender camera rig setup">
+              <figcaption class="media-caption">The sampled path is rendered in blender</figcaption>
+            </figure>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+
+    <section id="publications">
+      <h2>Publications</h2>
+      <ul class="list media pub-list">
+        <li>
+          <img class="thumb" src="asset/ItinBench_main_graph.jpg" alt="Paper thumbnail" />
+          <div class="item-body">
+            <div class="pub-title">ItinBench: Benchmarking Planning Across Multiple Cognitive Dimensions with Large Language Models</div>
+            <div class="authors"><strong>Tianlong Wang</strong>, Weili Shi, Sheng Li. </div>
+            <div> <em>Under review.</em> </div>
+            <div class="pub-links">
+              <a href="https://openreview.net/pdf?id=A5z9VkfTIo">[Paper]</a>
+              <a href="https://ethanwtl.github.io/IBweb/">[Code]</a>
+            </div>
+          </div>
+        </li>
+        <li>
+          <img class="thumb" src="asset/framework_crop_page-0001.jpg" alt="Paper thumbnail" />
+          <div class="item-body">
+            <div class="pub-title">VRMDiff: Text-Guided Video Referring Matting Generation of Diffusion</div>
+            <div class="authors">Lehan Yang, Jincen Song, <strong>Tianlong Wang</strong>, Daiqing Qi, Weili Shi, Yuheng Liu, Sheng Li.</div>
+            <div><em>Under review.</em></div>
+            <div class="pub-links">
+              <a href="https://arxiv.org/abs/2503.10678">[Paper]</a>
+              <a href="https://bio.lehanyang.info/VRMDiff.github.io/">[Project]</a>
+            </div>
+          </div>
+        </li>
+        <li>
+          <img class="thumb" src="asset/FL_figure.png" alt="Paper thumbnail" />
+          <div class="item-body">
+            <div class="pub-title">Decentralized Machine Learning Approach on ICU Admission Prediction for Enhanced Patient Care Using COVID-19 Data</div>
+            <div class="authors">Takeshi Matsuda, <strong>Tianlong Wang</strong>, Mehmet Dik</div>
+            <div><em>Proceedings of International Mathematical Sciences.</em></div>
+            <div class="pub-links">
+              <a href="https://dergipark.org.tr/en/pub/pims/issue/81233/1390925">[Paper]</a>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+</body>
+</html>
