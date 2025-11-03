@@ -285,15 +285,3 @@ p{margin:10px 0}
   font-size: 0.92rem;
 }
 
-/* optional: make it 2-up on large screens */
-@media (min-width: 720px) {
-  #service .service-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 26px;
-  }
-  #service .service-list > li::after {
-    /* turn off per-item line when in grid */
-    display: none;
-  }
-}
