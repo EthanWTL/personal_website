@@ -247,6 +247,16 @@ p{margin:10px 0}
   background: transparent;
 }
 
+#projects .project-media.media-grid .media-item-wide {
+  grid-column: span 2;
+}
+
+@media (max-width: 640px) {
+  #projects .project-media.media-grid .media-item-wide {
+    grid-column: auto;
+  }
+}
+
 /* The actual media (image/video) */
 #projects .project-media .media-img {
   width: 100%;
@@ -284,4 +294,3 @@ p{margin:10px 0}
   color: var(--muted);
   font-size: 0.92rem;
 }
-
