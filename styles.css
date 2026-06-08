@@ -268,6 +268,10 @@ p{margin:10px 0}
   background: transparent;
 }
 
+#projects .project-media.media-grid .media-item-wide .media-img {
+  aspect-ratio: 1550 / 430;
+}
+
 /* Caption styling */
 #projects .project-media .media-caption {
   font-size: 0.9rem;
