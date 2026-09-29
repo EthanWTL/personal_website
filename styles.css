@@ -281,6 +281,21 @@ p{margin:10px 0}
   aspect-ratio: auto;
 }
 
+/* Feature layout: small demo on the left, large diagram on the right */
+#projects .project-media.media-grid.media-grid-feature {
+  grid-template-columns: 1fr 3fr;
+}
+
+#projects .project-media.media-grid.media-grid-feature .media-item-wide {
+  grid-column: auto;
+}
+
+@media (max-width: 640px) {
+  #projects .project-media.media-grid.media-grid-feature {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Caption styling */
 #projects .project-media .media-caption {
   font-size: 0.9rem;
