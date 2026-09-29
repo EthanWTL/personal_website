@@ -51,27 +51,33 @@
          <!-- Project 1 -->
         <li class="project-card">
           <div class="item-body">
-            <div class="project-title">Affordance as Emergent Representation in Video Foundation Models </div>
+            <div class="project-title">Geometry-Aware Video Generation via Cognitive-Science-Guided Training</div>
             <p>
-              This project investigates affordance emergence in video foundation models through world modeling. 
-              Using EK videos, we construct an affordance probing dataset with object-level probes and actionable-region heatmaps to evaluate whether models can infer what actions an object affords and where those actions are grounded. 
-              Our goal is to move beyond visual recognition toward world models that can predict physical state changes and provide actionable interaction options for embodied agents.
+              Diagnosed geometric reasoning failures in image-to-video models through representation probing and controlled geometry interventions, showing that depth and object-level spatial information is encoded in the model but not effectively used to constrain generation; providing explicit depth, slot-based object features, and ray rotation cues produced only marginal gains over RGB-only inputs.
+              Developed a cognitive-science-guided training paradigm inspired by infant geometric development, where motion and binocular cues progressively calibrate pictorial representations and entity-level reasoning; constructed an adaptive training engine that varies viewpoints, target motions, and obstacle positions based on model feedback, achieving improved geometric consistency under the same training budget.
+              Currently developing entity-centric and causal generation mechanisms, including improved slot-based object abstraction to mitigate inter-object penetration and shorter-horizon causal prediction to discourage endpoint-first generation behaviors such as object rescaling.
             </p>
           </div>
 
-          <!-- Three-up media grid with per-figure captions -->
+          <!-- Three-up media grid with per-figure captions (figures TBD) -->
+          <!--
           <div class="project-media media-grid">
             <figure class="media-item">
-              <img class="media-img" src="asset/EK_demo.gif" alt="Generated trajectory demo">
-              <figcaption class="media-caption">Build affordance labels and heatmap from Epic Kitchen, Visor, and EK affordance.</figcaption>
+              <img class="media-img" src="asset/" alt="">
+              <figcaption class="media-caption"></figcaption>
             </figure>
 
-            <figure class="media-item media-item-wide">
-              <img class="media-img" src="asset/v-jepa-demo.gif" alt="Scene structure visualization">
-              <figcaption class="media-caption">Probe affordance from world state. A dynamic affordance is captured.</figcaption>
+            <figure class="media-item">
+              <img class="media-img" src="asset/" alt="">
+              <figcaption class="media-caption"></figcaption>
             </figure>
 
+            <figure class="media-item">
+              <img class="media-img" src="asset/" alt="">
+              <figcaption class="media-caption"></figcaption>
+            </figure>
           </div>
+          -->
         </li>
 
         <!-- Project 2 -->
@@ -136,16 +142,18 @@
           <div class="item-body">
             <div class="pub-title">Evaluating Spatial World Modeling in Video Generators via 3D Camera Trajectory Generation</div>
             <div class="authors"><strong>Tianlong Wang</strong>, Lehan Yang, Yuheng Liu, Hanzhang Yuan, Wenhao Zhang, Pinqiao Wang, Yifan Li, Yu Kong, Sheng Li. </div>
-            <div> <em>Under review.</em> </div>
+            <div> <em>ICML Foundations of Deep Generative Models Workshop, 2026.</em> <strong>(Oral Presentation)</strong> </div>
+            <div class="pub-links">
+              <a href="#">[Paper]</a> <!-- TODO: add paper link -->
+            </div>
           </div>
         </li>
-        <li>
         <li>
           <img class="thumb" src="asset/ItinBench_main_graph.jpg" alt="Paper thumbnail" />
           <div class="item-body">
             <div class="pub-title">ItinBench: Benchmarking Planning Across Multiple Cognitive Dimensions with Large Language Models</div>
             <div class="authors"><strong>Tianlong Wang</strong>, Pinqiao Wang, Weili Shi, Sheng Li. </div>
-            <div> <em>Under review.</em> </div>
+            <div> <em>Transactions on Machine Learning Research (TMLR), 2026.</em> </div>
             <div class="pub-links">
               <a href="https://openreview.net/pdf?id=A5z9VkfTIo">[Paper]</a>
               <a href="https://ethanwtl.github.io/IBweb/">[Code]</a>
@@ -157,7 +165,7 @@
           <div class="item-body">
             <div class="pub-title">VRMDiff: Text-Guided Video Referring Matting Generation of Diffusion</div>
             <div class="authors">Lehan Yang, Jincen Song, <strong>Tianlong Wang</strong>, Daiqing Qi, Weili Shi, Yuheng Liu, Sheng Li.</div>
-            <div><em>Under review.</em></div>
+            <div><em>arXiv preprint, 2026.</em></div>
             <div class="pub-links">
               <a href="https://arxiv.org/abs/2503.10678">[Paper]</a>
               <a href="https://bio.lehanyang.info/VRMDiff.github.io/">[Project]</a>
