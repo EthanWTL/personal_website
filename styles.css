@@ -269,7 +269,16 @@ p{margin:10px 0}
 }
 
 #projects .project-media.media-grid .media-item-wide .media-img {
-  aspect-ratio: 1550 / 430;
+  aspect-ratio: auto;               /* keep the figure's own shape */
+}
+
+/* Figure that keeps its own shape, centered next to a taller neighbor */
+#projects .project-media.media-grid .media-item-natural {
+  align-self: center;
+}
+
+#projects .project-media.media-grid .media-item-natural .media-img {
+  aspect-ratio: auto;
 }
 
 /* Caption styling */
