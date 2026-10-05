@@ -281,9 +281,17 @@ p{margin:10px 0}
   aspect-ratio: auto;
 }
 
-/* Feature layout: small demo on the left, large diagram on the right */
+/* Feature layout: two stacked small figures on the left, large diagram on the right */
 #projects .project-media.media-grid.media-grid-feature {
   grid-template-columns: 1fr 3fr;
+}
+
+#projects .project-media.media-grid-feature .media-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  align-self: center;
 }
 
 #projects .project-media.media-grid.media-grid-feature .media-item-wide {
