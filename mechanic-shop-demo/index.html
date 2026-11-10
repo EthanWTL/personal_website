@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>机械小店 · 桌面风扇装配原型</title>
+  <style>
+    :root {
+      --bg: #f3f2ee;
+      --panel: #fff;
+      --ink: #222824;
+      --muted: #727a74;
+      --border: #dcded8;
+      --soft: #ebeae4;
+      --green: #24734d;
+      --green-bg: #e4f3e9;
+      --bad: #994b48;
+      --bad-bg: #faeeed;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 system-ui,-apple-system,"Segoe UI",Arial,"PingFang SC","Microsoft YaHei",sans-serif; }
+    button { font: inherit; cursor: pointer; }
+    .app { max-width: 1640px; margin: 0 auto; padding: 22px 24px 28px; }
+    .top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 16px; }
+    .top h1 { margin:0; font-size: 20px; font-weight: 650; letter-spacing: -.3px; }
+    .top small { color: var(--muted); font-size: 12px; }
+    .layout { display: grid; grid-template-columns: 258px minmax(0,1fr); align-items: stretch; gap: 14px; }
+    .panel { background:var(--panel); border:1px solid var(--border); border-radius: 12px; }
+    .parts { min-height: 734px; padding: 16px 12px; overflow: auto; }
+    .panel-title { padding: 0 6px; margin: 0 0 12px; font-size: 14px; font-weight: 650; }
+    .subtle { color:var(--muted); font-size: 12px; }
+    .parts .hint { padding: 0 6px; margin: -6px 0 14px; }
+    .group { margin-bottom: 18px; }
+    .group-name { color:var(--muted); font-size:12px; font-weight:650; padding: 0 6px 7px; }
+    .part-list { display:grid; gap: 7px; }
+    .part { width:100%; text-align:left; display:grid; grid-template-columns: 36px minmax(0,1fr); gap: 10px; align-items:center; border:1px solid var(--border); border-radius: 8px; padding:9px 10px; background:#fff; color:var(--ink); user-select:none; }
+    .part:hover { border-color:#a9afa8; background:#fbfcfa; }
+    .part.selected { outline: 2px solid #5a655e; outline-offset:-2px; }
+    .part:focus-visible,.slot:focus-visible,.btn:focus-visible { outline:2px solid #2e6ea1; outline-offset:2px; }
+    .part-icon { width: 32px; height:32px; display:grid; place-items:center; background:#f1f1ed; border-radius:7px; }
+    .part-icon svg { width:25px; height:25px; }
+    .part-name { font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .part-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+    .main { min-width:0; display:flex; flex-direction: column; gap:14px; }
+    .upper { display:grid; grid-template-columns: minmax(350px,1.65fr) minmax(220px,.92fr) minmax(220px,1fr); gap:14px; min-height: 558px; }
+    .desk-wrap { min-width:0; display:flex; flex-direction:column; }
+    .desk-head { padding: 16px 19px 0; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .desk-head h2 { margin:0; font-size: 14px; font-weight:650; }
+    .desk-head .state { font-size:12px; color:var(--muted); }
+    .desk { position:relative; margin: 13px; border:1px solid #dedbd3; border-radius:9px; min-height:414px; display:grid; place-items:center; overflow:hidden; background:#eeece6; }
+    .desk svg { width:min(100%,610px); max-height:414px; display:block; }
+    .desk-hint { font-size:12px; text-align:center; color:#81847e; padding:0 20px 8px; }
+    .desk-actions { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; padding: 8px 15px 17px; }
+    .btn { padding:10px 18px; border:1px solid #555f58; border-radius:7px; background:#323a34; color:white; font-weight:600; }
+    .btn:hover { background:#222b25; }
+    .btn:disabled { opacity:.35; cursor:not-allowed; }
+    .btn.secondary { background:#fff; color:var(--ink); border-color:var(--border); }
+    .btn.secondary:hover { background:#f6f7f4; }
+    .results { padding: 17px; display:flex; flex-direction:column; min-width:0; }
+    .results h2 { margin:0 0 20px; font-size:14px; font-weight:650; }
+    .developer { background:#fafbf9; }
+    .developer .metrics { gap:7px; }
+    .developer .metric { padding:8px 10px; font-size:12px; }
+    .dev-divider { font-size:11px; color:var(--muted); margin:8px 0 2px; }
+    .ref-note { margin-top:15px; font-size:11px; color:var(--muted); line-height:1.6; }
+    .result-empty { flex:1; display:grid; place-items:center; color:#9a9d96; font-size:12px; text-align:center; padding:0 18px; }
+    .result-body { display:none; }
+    .results.ready .result-empty { display:none; }
+    .results.ready .result-body { display:block; }
+    .tag-title { color:var(--muted); font-size:12px; margin-bottom:9px; }
+    .tag-area { display:flex; flex-wrap:wrap; gap:7px; min-height:30px; }
+    .tag { border-radius:6px; border:1px solid var(--border); padding:7px 10px; font-size:12px; font-weight:600; white-space:nowrap; }
+    .tag.good { background:var(--green-bg); color:var(--green); border-color:#b9dac6; }
+    .tag.bad { background:var(--bad-bg); color:var(--bad); border-color:#e7d4d1; }
+    .tag.neutral { background:#fff; color:var(--ink); font-weight:500; }
+    .no-tags { color: #939890; font-size:12px; padding-top:6px; }
+    .result-divider { margin: 21px 0; border:none; border-top:1px solid #ebede8; }
+    .metrics { display:flex; flex-direction:column; gap:9px; }
+    .metric { padding:10px 12px; border:1px solid var(--border); background:#fff; border-radius:7px; display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:13px; }
+    .metric b { font-weight:650; font-variant-numeric: tabular-nums; }
+    .dock { padding:15px 17px 17px; }
+    .dock-head { display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:11px; }
+    .dock-head h2 { margin:0; font-size:14px; font-weight:650; }
+    .slots { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+    .slot { position:relative; min-height:111px; border:1.5px dashed #bac1b9; background:#fdfdfa; border-radius:9px; padding:13px; color:var(--ink); cursor:pointer; text-align:left; }
+    .slot:hover,.slot.drag-over { border-color:#4b6253; background:#f0f3ef; }
+    .slot.filled { border-style:solid; border-color:#c8cfca; background:#fff; }
+    .slot.filled.drag-over { border-style:dashed; }
+    .slot-num { color:#959e96; font-size:11px; font-variant-numeric:tabular-nums; }
+    .slot-label { font-size:12px; font-weight:650; margin-top:3px; }
+    .slot-value { color:var(--muted); font-size:12px; margin-top:9px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:15px; }
+    .slot-value.occupied { color:var(--ink); font-weight:600; }
+    .remove { position:absolute; right:10px; bottom:11px; width:21px; height:21px; display:grid; place-items:center; border:0; border-radius:5px; background:#f1f2ef; font-size:16px; line-height:1; color:#707a72; }
+    .remove:hover { background:#e2e5de; color:var(--ink); }
+    .message { color:#a05249; font-size:12px; min-height:18px; margin-top:10px; }
+    .muted-placeholder { color:#969b94; }
+    #rotor { transform-origin: 260px 154px; transform-box: view-box; }
+    .spinning #rotor { animation: fan-spin 1.3s linear infinite; }
+    @keyframes fan-spin { to { transform:rotate(360deg); } }
+    @media (max-width:1190px) {
+      .upper { grid-template-columns:minmax(0,1fr) 260px; }
+      .developer { grid-column:1 / -1; }
+      .developer .metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
+      .layout { grid-template-columns:238px minmax(0,1fr); }
+      .parts { padding:14px 9px; }
+      .results { padding:14px; }
+    }
+    @media (max-width:850px) {
+      .app { padding:13px; }
+      .layout { grid-template-columns:1fr; }
+      .parts { min-height:0; }
+      .part-list { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .upper { grid-template-columns:1fr; }
+      .developer { grid-column:auto; }
+      .developer .metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .results { min-height:200px; }
+      .desk { min-height:300px; }
+    }
+    @media (max-width:480px) {
+      .part-list { grid-template-columns:1fr; }
+      .slots { grid-template-columns:1fr; }
+      .slot { min-height:77px; }
+      .developer .metrics { grid-template-columns:1fr; }
+      .top { align-items:flex-start; flex-direction:column; gap:0; }
+    }
+    @media (prefers-reduced-motion: reduce) { .spinning #rotor { animation-duration:3.2s; } }
+  </style>
+
+  <style id="wide-layout-overrides">
+    /* ChatGPT's Page viewer may be narrow. Keep the game arranged as a landscape desktop webpage. */
+    html, body { width:100%; max-width:100%; margin:0; }
+    body { overflow-x:hidden; }
+    .horizontal-viewport { width:100%; max-width:100%; overflow-x:auto; overscroll-behavior-inline:contain; }
+    .horizontal-viewport .app { min-width:1280px; max-width:none; width:100%; padding:16px 18px 20px; }
+    .horizontal-viewport .layout { display:grid; grid-template-columns:220px minmax(0,1fr); gap:12px; align-items:start; }
+    .horizontal-viewport .parts { min-height:620px; padding:12px 9px; max-height:690px; overflow-y:auto; }
+    .horizontal-viewport .main { gap:12px; }
+    .horizontal-viewport .upper { display:grid; grid-template-columns:minmax(380px,1.6fr) minmax(210px,.88fr) minmax(230px,1fr); gap:12px; min-height:540px; }
+    .horizontal-viewport .developer { grid-column:auto; }
+    .horizontal-viewport .developer .metrics { display:flex; flex-direction:column; gap:6px; }
+    .horizontal-viewport .developer .metric { padding:8px 9px; font-size:11px; }
+    .horizontal-viewport .results { min-height:0; padding:13px; }
+    .horizontal-viewport .results h2 { margin-bottom:15px; }
+    .horizontal-viewport .desk { min-height:380px; margin:10px; }
+    .horizontal-viewport .desk svg { max-height:380px; }
+    .horizontal-viewport .desk-actions { padding:8px 8px 12px; gap:6px; }
+    .horizontal-viewport .btn { padding:8px 11px; font-size:12px; }
+    .horizontal-viewport .part-list { display:grid; grid-template-columns:1fr; }
+    .horizontal-viewport .slots { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
+    .horizontal-viewport .slot { min-height:88px; }
+    .horizontal-viewport .top { display:flex; flex-direction:row; align-items:center; gap:12px; }
+    .wide-action { font:inherit; font-size:12px; padding:5px 9px; border:1px solid #cbd0c8; background:#fff; border-radius:6px; color:#49574f; cursor:pointer; }
+    .wide-action:hover { background:#f2f5f1; }
+    .horizontal-viewport:fullscreen { background:#f3f2ee; overflow:auto; }
+    .horizontal-viewport:fullscreen .app { min-width:1280px; }
+    @media(max-width: 1279px) {
+      .horizontal-viewport { scrollbar-width:thin; }
+    }
+  </style>
+</head>
+<body>
+<div class="horizontal-viewport" id="wideViewport">
+<div class="app">
+  <header class="top">
+    <h1>机械小店 · 桌面风扇</h1>
+    <div style="display:flex;gap:10px;align-items:center"><small>参考配置：M / M / M · 规格和能力独立</small><button type="button" class="wide-action" id="wideButton">⛶ 宽屏显示</button></div>
+  </header>
+  <div class="layout">
+    <aside class="panel parts">
+      <h2 class="panel-title">零件库存</h2>
+      <div class="subtle hint">拖到下方槽位，或先点零件再点槽位</div>
+      <div id="parts"></div>
+    </aside>
+
+    <main class="main">
+      <div class="upper">
+        <section class="panel desk-wrap">
+          <div class="desk-head">
+            <h2>2D 工作台</h2>
+            <span id="assemblyState" class="state">外壳未安装</span>
+          </div>
+          <div class="desk" id="desk"></div>
+          <div class="desk-hint" id="deskHint">装入电机、扇叶、电池，然后打印外壳。</div>
+          <div class="desk-actions">
+            <button type="button" class="btn" id="sealButton" disabled>打印外壳 · 合壳测试</button>
+            <button type="button" class="btn secondary" id="sampleButton">参考配置 M / M / M</button>
+            <button type="button" class="btn secondary" id="compactButton">尝试 S 小钢炮</button>
+          </div>
+        </section>
+
+        <section class="panel results" id="results">
+          <h2>玩家看到的结果</h2>
+          <div class="result-empty">合壳测试后显示物品标签</div>
+          <div class="result-body">
+            <div class="tag-title">优秀特性 · 绿色</div>
+            <div class="tag-area" id="goodTags"></div>
+            <hr class="result-divider" />
+            <div class="tag-title">通用属性 · 白色</div>
+            <div class="tag-area" id="neutralTags"></div>
+            <hr class="result-divider" />
+            <div class="tag-title">设备特有问题</div>
+            <div class="tag-area" id="badTags"></div>
+          </div>
+        </section>
+
+        <section class="panel results developer" id="devPanel">
+          <h2>开发者看到的数值</h2>
+          <div class="result-empty">合壳测试后显示完整计算结果</div>
+          <div class="result-body">
+            <div class="metrics">
+              <div class="metric"><span>最终性能</span><b id="performanceValue">—</b></div>
+              <div class="metric"><span>基础能力均值</span><b id="qualityMeanValue">—</b></div>
+              <div class="metric"><span>尺寸匹配倍率</span><b id="fitValue">—</b></div>
+              <div class="metric"><span>供电倍率</span><b id="supplyValue">—</b></div>
+              <div class="metric"><span>综合倍率</span><b id="multiplierValue">—</b></div>
+              <div class="metric"><span>电机 / 扇叶尺寸比</span><b id="ratioValue">—</b></div>
+              <div class="dev-divider">电力与寿命</div>
+              <div class="metric"><span>耗电量</span><b id="powerValue">—</b></div>
+              <div class="metric"><span>电源输出 / 需求</span><b id="powerMarginValue">—</b></div>
+              <div class="metric"><span>预计寿命</span><b id="lifeValue">—</b></div>
+              <div class="dev-divider">设备专属隐藏因子</div>
+              <div class="metric"><span>送风指数</span><b id="airflowValue">—</b></div>
+              <div class="metric"><span>噪声因子</span><b id="noiseValue">—</b></div>
+              <div class="metric"><span>振动因子</span><b id="wobbleValue">—</b></div>
+            </div>
+            <div class="ref-note">参考图纸：M 电机 + M 扇叶 + M 电池。尺寸只影响搭配；零件本身的能力分独立于 S / M / L。</div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel dock">
+        <div class="dock-head">
+          <h2>内部安装槽位</h2>
+          <span class="subtle">固定组件类型 · 自由选择具体型号</span>
+        </div>
+        <div class="slots" id="slots"></div>
+        <div id="message" class="message" aria-live="polite"></div>
+      </section>
+    </main>
+  </div>
+</div>
+</div>
+<script>
+(() => {
+  "use strict";
+  // 所有性能计算都在本地完成；公式只用于游戏规则，不是机械物理模拟。
+  // 三个插槽固定：电机 + 扇叶 + 电池。每个组件可以挑选不同型号。
+  // 规格(size)和能力(q)彼此独立：S 也可以有最高性能，L 也可能是低性能。
+  // 参数均为本游戏平衡示意，不是现实电机/电池工程数据。
+  const catalog = {
+    motor: [
+      {id:"motor_s", name:"S · 普通微型电机", size:"S", q:55, watts:10.5, durability:72, noise:0.20},
+      {id:"motor_s_pro", name:"S · 旗舰微型电机", size:"S", q:98, watts:17, durability:95, noise:0.10},
+      {id:"motor_m", name:"M · 标准电机", size:"M", q:75, watts:16, durability:86, noise:0.15},
+      {id:"motor_m_quiet", name:"M · 静音电机", size:"M", q:90, watts:12, durability:96, noise:0.05},
+      {id:"motor_l_cheap", name:"L · 廉价大电机", size:"L", q:58, watts:23, durability:67, noise:0.33},
+      {id:"motor_l", name:"L · 高性能电机", size:"L", q:93, watts:28, durability:89, noise:0.20}
+    ],
+    blade: [
+      {id:"blade_s", name:"S · 普通小扇叶", size:"S", q:56, load:0.75, airflow:1.05, balance:0.90, noise:0.08, durability:76},
+      {id:"blade_s_pro", name:"S · 精工小扇叶", size:"S", q:97, load:0.82, airflow:2.08, balance:0.99, noise:0.04, durability:96},
+      {id:"blade_m", name:"M · 标准扇叶", size:"M", q:76, load:1.0, airflow:1.70, balance:0.92, noise:0.14, durability:85},
+      {id:"blade_light", name:"M · 轻量扇叶", size:"M", q:92, load:0.88, airflow:1.84, balance:0.99, noise:0.05, durability:96},
+      {id:"blade_l_cheap", name:"L · 廉价大扇叶", size:"L", q:59, load:1.28, airflow:1.58, balance:0.75, noise:0.30, durability:70},
+      {id:"blade_l", name:"L · 高风量扇叶", size:"L", q:91, load:1.45, airflow:3.00, balance:0.87, noise:0.25, durability:85}
+    ],
+    battery: [
+      {id:"battery_s", name:"S · 普通小电池", size:"S", q:58, output:13, capacity:42, loss:1.11, durability:76},
+      {id:"battery_s_pro", name:"S · 高能微型电池", size:"S", q:97, output:38, capacity:116, loss:1.00, durability:96},
+      {id:"battery_m", name:"M · 标准电池", size:"M", q:77, output:28, capacity:95, loss:1.04, durability:87},
+      {id:"battery_h", name:"M · 长续航电池", size:"M", q:93, output:40, capacity:160, loss:0.98, durability:95},
+      {id:"battery_l_cheap", name:"L · 旧式大电池", size:"L", q:60, output:28, capacity:210, loss:1.16, durability:70},
+      {id:"battery_l", name:"L · 大容量电池", size:"L", q:90, output:55, capacity:240, loss:1.02, durability:92}
+    ]
+  };
+  const sizeScale = {S:0.72,M:1,L:1.38};
+  const reference = {motor:"M",blade:"M",battery:"M"};
+  const slotTypes = ["motor", "blade", "battery"];
+  const titles = {motor:"电机", blade:"扇叶", battery:"电池"};
+  let slots = {motor:null, blade:null, battery:null};
+  let selected = null;
+  let sealed = false;
+  let messageTimeout;
+
+  const getItem = (type,id) => catalog[type].find(item=>item.id===id) || null;
+  const current = type => getItem(type, slots[type]);
+  const clamp = (v,lo,hi) => Math.max(lo,Math.min(hi,v));
+  const fmt = n => new Intl.NumberFormat("zh-CN").format(n);
+  const esc = value => String(value).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+
+  function partIcon(type) {
+    if (type === "motor") return `<svg viewBox="0 0 28 28" fill="none" stroke="#4d5550" stroke-width="1.6"><rect x="4" y="8" width="15" height="13" rx="3"/><path d="M19 11h5v7h-5M10 8V5M13 8V5M10 21v3M13 21v3"/></svg>`;
+    if (type === "blade") return `<svg viewBox="0 0 28 28" fill="none" stroke="#4d5550" stroke-width="1.3"><circle cx="14" cy="14" r="2.5"/><path fill="#bec8c1" d="M14 12C8 12 5 6 9 3c4-3 8 4 7 9M16 14c4-4 11-2 10 3-1 5-9 4-11-1M13 16c1 6-5 10-9 6-4-4 2-9 8-8"/></svg>`;
+    return `<svg viewBox="0 0 28 28" fill="none" stroke="#4d5550" stroke-width="1.6"><rect x="5" y="8" width="18" height="14" rx="2"/><path d="M10 8V5h8v3M9 15h5m-2.5-2.5v5M18 15h4"/></svg>`;
+  }
+
+  function renderParts() {
+    const parent = document.getElementById("parts");
+    parent.innerHTML = slotTypes.map(type => `<section class="group"><div class="group-name">${titles[type]}</div><div class="part-list">${catalog[type].map(p =>
+      `<button type="button" class="part ${selected===p.id?'selected':''}" draggable="${!sealed}" data-id="${p.id}" data-type="${type}" aria-pressed="${selected===p.id}">
+        <span class="part-icon">${partIcon(type)}</span><span><div class="part-name">${esc(p.name)}</div><div class="part-meta">规格 ${p.size} · 能力 ${p.q}</div></span>
+      </button>`).join("")}</div></section>`).join("");
+    parent.querySelectorAll(".part").forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (sealed) { showMessage("先打开外壳再更换零件。"); return; }
+        selected = selected === btn.dataset.id ? null : btn.dataset.id;
+        renderParts();
+        if (selected) showMessage(`已选择 ${getItem(btn.dataset.type, selected).name}，点击下方${titles[btn.dataset.type]}槽位安装。`, false);
+      });
+      btn.addEventListener("dragstart", e => {
+        if (sealed) { e.preventDefault(); return; }
+        e.dataTransfer.setData("text/plain", JSON.stringify({type:btn.dataset.type,id:btn.dataset.id}));
+        e.dataTransfer.effectAllowed="copy";
+      });
+    });
+  }
+
+  function showMessage(msg,clear=true) {
+    const m=document.getElementById("message");
+    m.textContent=msg;
+    m.style.color=msg.includes("不匹配")||msg.includes("先打开")?"#a05249":"#727a74";
+    if (messageTimeout) clearTimeout(messageTimeout);
+    if (clear) messageTimeout=setTimeout(()=>m.textContent="",2600);
+  }
+
+  function install(type,id) {
+    if (sealed) { showMessage("先打开外壳再更换零件。"); return; }
+    const found = getItem(type,id);
+    if (!found) return;
+    slots[type] = id;
+    selected = null;
+    renderAll();
+    showMessage(`${found.name} 已吸附到${titles[type]}槽位。`);
+  }
+
+  function renderSlots() {
+    const root = document.getElementById("slots");
+    root.innerHTML = slotTypes.map((type,i)=>{
+      const p=current(type);
+      return `<div class="slot ${p?'filled':''}" data-type="${type}" role="button" tabindex="${sealed?'-1':'0'}" aria-label="${titles[type]}安装槽位${p?'，已装入'+p.name:'，空'}">
+        <div class="slot-num">0${i+1}</div><div class="slot-label">${titles[type]}</div>
+        <div class="slot-value ${p?'occupied':''}">${p?esc(p.name):'拖入 / 点击安装'}</div>
+        ${p&&!sealed?`<button type="button" class="remove" data-type="${type}" title="移除${titles[type]}" aria-label="移除${titles[type]}">×</button>`:''}
+      </div>`;
+    }).join("");
+    root.querySelectorAll(".slot").forEach(el=>{
+      const type=el.dataset.type;
+      el.addEventListener("click",e=>{
+        if (e.target.closest(".remove")) return;
+        if (sealed) return;
+        if (selected) {
+          const entry=slotTypes.map(t=>({type:t,p:getItem(t,selected)})).find(x=>x.p);
+          if (entry && entry.type===type) install(type,selected);
+          else showMessage(`组件类型不匹配：这里需要${titles[type]}。`);
+        } else showMessage(`从左侧选一个${titles[type]}，然后点这里。`, false);
+      });
+      el.addEventListener("keydown",e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click();}});
+      el.addEventListener("dragover",e=>{if(sealed)return;e.preventDefault();e.dataTransfer.dropEffect='copy';el.classList.add("drag-over");});
+      el.addEventListener("dragleave",()=>el.classList.remove("drag-over"));
+      el.addEventListener("drop",e=>{
+        e.preventDefault();el.classList.remove("drag-over");
+        if(sealed) return;
+        try { const data=JSON.parse(e.dataTransfer.getData("text/plain"));
+          if(data.type!==type) showMessage(`组件类型不匹配：这里需要${titles[type]}。`);
+          else install(type,data.id);
+        } catch(err) { showMessage("请从左侧零件库存中拖入组件。"); }
+      });
+    });
+    root.querySelectorAll(".remove").forEach(btn=>btn.addEventListener("click",e=>{
+      e.stopPropagation();if(sealed)return;
+      slots[btn.dataset.type]=null;
+      renderAll();
+    }));
+  }
+
+  // 游戏平衡规则 v2：同一规格可以有不同能力，同一能力可以分布在不同规格。
+  // 1. 基础性能 = 三个组件的能力分 q 的算术平均，与 size 完全无关。
+  // 2. 图纸 M/M/M 的参考比例为 1.00；电机与扇叶的尺寸比例影响拟合倍率。
+  //    S/S/S 与 L/L/L 也能保持尺寸比例合理，大小本身不自动构成惩罚。
+  // 3. 电池输出不足时附加乘法惩罚；电池容量并不直接提高基础性能。
+  // 4. 耗电由电机的独立 watts 与扇叶的独立 load、规格偏差决定。
+  // 5. 寿命由部件耐久和规格不匹配/供电不足共同决定。
+  // 6. 风扇特有标签由送风、噪声和振动因子计算；所有最终数值仅在开发者面板展示。
+  function simulate(m,b,bat) {
+    const qualityMean=(m.q+b.q+bat.q)/3;
+    const actualRatio=sizeScale[m.size]/sizeScale[b.size];
+    const referenceRatio=sizeScale[reference.motor]/sizeScale[reference.blade]; // M/M = 1
+    const deviation=Math.abs(Math.log(actualRatio/referenceRatio));
+    const sizeFit=clamp(Math.exp(-1.05*deviation*deviation),0.53,1);
+    const neededPower=2.4 + m.watts*(0.72+0.28*b.load);
+    const supplyRatio=bat.output/(neededPower*1.15);
+    const supplyFit=clamp(Math.pow(supplyRatio,0.58),0.62,1);
+    const multiplier=sizeFit*supplyFit;
+    const performance=Math.round(qualityMean*multiplier);
+    const power=neededPower*(1+0.18*deviation*deviation)*bat.loss;
+    const overload=Math.max(0,(sizeScale[b.size]/sizeScale[m.size])-1);
+    const shortage=Math.max(0,1-supplyRatio);
+    const avgDurability=(m.durability+b.durability+bat.durability)/3;
+    const lifetime=Math.max(250,Math.round(((650+18*avgDurability)*Math.exp(-1.35*deviation*deviation-1.45*shortage*shortage-0.30*overload*overload))/10)*10);
+    const airflow=b.airflow*Math.pow(sizeFit,0.6)*supplyFit;
+    const noise=m.noise+b.noise+0.22*deviation+0.10*overload;
+    const wobble=(1-b.balance)*1.35+0.50*deviation+0.08*overload;
+
+    const good=[];
+    if(airflow>=2.4 && performance>=65) good.push("强劲送风");
+    if(noise<0.22 && performance>=65 && supplyFit>=0.95) good.push("安静送风");
+    if(wobble<0.13 && performance>=70) good.push("运转平稳");
+
+    const bad=[];
+    if(wobble>=0.31) bad.push({name:"扇叶抖动",severity:wobble});
+    if(noise>=0.54) bad.push({name:"风噪偏大",severity:noise-0.18});
+    if(overload>=0.25) bad.push({name:"转动吃力",severity:overload+0.20});
+    if(supplyRatio<0.86) bad.push({name:"转速不稳",severity:0.86-supplyRatio+0.33});
+    bad.sort((a,b)=>b.severity-a.severity);
+
+    return {performance,power,lifetime,good:good.slice(0,2),bad:bad.slice(0,2).map(x=>x.name),
+      multiplier,qualityMean,sizeFit,supplyFit,actualRatio,referenceRatio,supplyRatio,airflow,noise,wobble};
+  }
+
+  // 玩家只看定性等级；阈值在此统一定义，恰好 30 / 60 / 85 属于后一档。
+  function performanceTag(v) {
+    if (v<30) return "性能不足";
+    if (v<60) return "普通性能";
+    if (v<85) return "性能良好";
+    return "高性能";
+  }
+  function powerTag(watts) {
+    if (watts<13) return "低耗电";
+    if (watts<22) return "正常耗电";
+    if (watts<32) return "耗电偏高";
+    return "高耗电";
+  }
+  function lifetimeTag(hours) {
+    if (hours<1200) return "寿命偏短";
+    if (hours<1850) return "普通寿命";
+    if (hours<2300) return "寿命较长";
+    return "经久耐用";
+  }
+
+  function renderResults() {
+    const ready=sealed&&slotTypes.every(t=>!!current(t));
+    for(const id of ["results","devPanel"]) document.getElementById(id).classList.toggle("ready",ready);
+    if(!ready)return;
+    const s=simulate(current("motor"),current("blade"),current("battery"));
+    // 玩家面板：只有标签，没有数字。
+    document.getElementById("goodTags").innerHTML=s.good.length?s.good.map(t=>`<span class="tag good">${esc(t)}</span>`).join(""):'<span class="no-tags">暂无突出优秀特性</span>';
+    document.getElementById("neutralTags").innerHTML=[performanceTag(s.performance),powerTag(s.power),lifetimeTag(s.lifetime)].map(t=>`<span class="tag neutral">${esc(t)}</span>`).join("");
+    document.getElementById("badTags").innerHTML=s.bad.length?s.bad.map(t=>`<span class="tag bad">${esc(t)}</span>`).join(""):'<span class="no-tags">没有明显的问题</span>';
+    // 开发者面板：具体数值及关键中间过程，供我们后续调参。
+    const values={
+      performanceValue:`${s.performance} / 100`,
+      qualityMeanValue:s.qualityMean.toFixed(1),
+      fitValue:s.sizeFit.toFixed(3),
+      supplyValue:s.supplyFit.toFixed(3),
+      multiplierValue:s.multiplier.toFixed(3),
+      ratioValue:`${s.actualRatio.toFixed(2)} （参考 ${s.referenceRatio.toFixed(2)}）`,
+      powerValue:`${s.power.toFixed(1)} W`,
+      powerMarginValue:`${(s.supplyRatio*1.15).toFixed(2)} 倍`,
+      lifeValue:`${fmt(s.lifetime)} 小时`,
+      airflowValue:s.airflow.toFixed(3),
+      noiseValue:s.noise.toFixed(3),
+      wobbleValue:s.wobble.toFixed(3)
+    };
+    for(const [id,value] of Object.entries(values)) document.getElementById(id).textContent=value;
+  }
+
+  function renderDesk() {
+    const m=current("motor"), b=current("blade"), bat=current("battery");
+    const bladeScale= b?({S:0.74,M:0.94,L:1.12}[b.size]):1;
+    const motorScale=m?({S:0.85,M:1,L:1.16}[m.size]):1;
+    const rotorColor=b && b.id==="blade_light"?"#a9b9b1":"#86999b";
+    const bankFill=bat?"#e9e3ce":"none";
+    const bladeMarkup=b?`<g id="rotor"><g transform="translate(260 154) scale(${bladeScale})" fill="${rotorColor}" stroke="#586b6d" stroke-width="2.3">
+      <path d="M 5,-10 C 8,-33 30,-90 64,-93 C 79,-63 34,-20 6,10 Z"/>
+      <path d="M 5,-10 C 8,-33 30,-90 64,-93 C 79,-63 34,-20 6,10 Z" transform="rotate(120)"/>
+      <path d="M 5,-10 C 8,-33 30,-90 64,-93 C 79,-63 34,-20 6,10 Z" transform="rotate(240)"/>
+      </g></g>` : `<circle cx="260" cy="154" r="82" fill="none" stroke="#aeb5ae" stroke-width="2" stroke-dasharray="6 7"/>
+      <text x="260" y="89" text-anchor="middle" fill="#999f97" font-size="13">扇叶</text>`;
+    const motorMarkup=m?`<g transform="translate(260 154) scale(${motorScale}) translate(-260 -154)">
+      <rect x="218" y="117" width="84" height="74" rx="28" fill="#6a7678" stroke="#485655" stroke-width="4"/>
+      <circle cx="260" cy="154" r="29" fill="#aab7b2" stroke="#526564" stroke-width="3"/>
+      <circle cx="260" cy="154" r="11" fill="#596c68"/>
+      </g>`:
+      `<circle cx="260" cy="154" r="34" fill="none" stroke="#aeb5ae" stroke-width="2" stroke-dasharray="5 5"/>
+      <text x="260" y="159" text-anchor="middle" fill="#999f97" font-size="12">电机</text>`;
+    const casing=sealed?`<g fill="none" stroke="#5b6662">
+      <circle cx="260" cy="154" r="123" stroke-width="10"/>
+      <circle cx="260" cy="154" r="103" stroke-width="2.5"/>
+      <circle cx="260" cy="154" r="81" stroke-width="2" opacity=".68"/>
+      <circle cx="260" cy="154" r="58" stroke-width="2" opacity=".6"/>
+      ${Array.from({length:12},(_,i)=>{const a=i*Math.PI/6;const x1=260+13*Math.cos(a),y1=154+13*Math.sin(a),x2=260+119*Math.cos(a),y2=154+119*Math.sin(a);return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke-width="2" opacity=".68"/>`;}).join('')}
+      <circle cx="260" cy="154" r="17" fill="#677872" stroke="#c7cdc8" stroke-width="3"/>
+      <path d="M 208 328 H 312" stroke-width="24" stroke="#737c76" stroke-linecap="round"/>
+    </g>`:'';
+    const img=`<svg role="img" aria-label="桌面风扇的二维装配视图" viewBox="0 0 520 390" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="260" cy="347" rx="170" ry="15" fill="#d8d6ce"/>
+      <path d="M 247 220 L 247 298 L 273 298 L 273 220" fill="#b9c0b9" stroke="#77827b" stroke-width="3"/>
+      <path d="M 203 298 Q 260 283 317 298 L 325 329 Q 260 347 195 329 Z" fill="#aeb7ad" stroke="#727c73" stroke-width="3"/>
+      ${sealed ? `<path d="M 203 298 Q 260 287 317 298 L 322 326 Q 260 343 198 326 Z" fill="#aab5ac" stroke="#737d74" stroke-width="2"/>` : `<rect x="217" y="299" width="86" height="26" rx="5" fill="${bankFill}" stroke="${bat?'#777f74':'#949b91'}" stroke-dasharray="${bat?'none':'5 5'}" stroke-width="2"/>
+      ${bat ? `<rect x="224" y="305" width="72" height="14" rx="2" fill="#b8b5a2"/><text x="260" y="315" text-anchor="middle" font-size="10" fill="#414a42">电池 ${bat.size}</text>` : `<text x="260" y="315" text-anchor="middle" font-size="11" fill="#949b91">电池</text>`}`}
+      ${motorMarkup}
+      ${bladeMarkup}
+      ${b?`<circle cx="260" cy="154" r="${sealed?17:15}" fill="#677873" stroke="#d3dcd4" stroke-width="3"/>`:''}
+      ${casing}
+      ${!sealed&&m?`<text x="380" y="158" font-size="12" fill="#68746e">电机 ${m.size}</text><path d="M374 154 H315" fill="none" stroke="#abb2ab" stroke-width="1.5"/>`:''}
+      ${!sealed&&b?`<text x="380" y="112" font-size="12" fill="#68746e">扇叶 ${b.size}</text><path d="M373 108 H343" fill="none" stroke="#abb2ab" stroke-width="1.5"/>`:''}
+    </svg>`;
+    const target=document.getElementById("desk");
+    target.innerHTML=img;
+    target.classList.toggle("spinning",sealed);
+    const installed=slotTypes.filter(t=>current(t)).length;
+    document.getElementById("assemblyState").textContent=sealed?"外壳已安装":`外壳未安装 · ${installed}/3`;
+    document.getElementById("deskHint").textContent=sealed?"拆开外壳可以继续更换零件。":"将具体零件吸附到对应槽位，再打印外壳。";
+    const button=document.getElementById("sealButton");
+    button.disabled=!sealed&&installed<3;
+    button.textContent=sealed?"打开外壳 · 继续改装":"打印外壳 · 合壳测试";
+    document.getElementById("sampleButton").style.display=sealed?"none":"";
+    document.getElementById("compactButton").style.display=sealed?"none":"";
+  }
+
+  function renderAll(){renderParts();renderSlots();renderDesk();renderResults();}
+  document.getElementById("sealButton").addEventListener("click",()=>{
+    if(!sealed && !slotTypes.every(t=>current(t)))return;
+    sealed=!sealed;
+    selected=null;
+    renderAll();
+  });
+  document.getElementById("sampleButton").addEventListener("click",()=>{
+    slots={motor:"motor_m",blade:"blade_m",battery:"battery_m"};
+    selected=null;
+    sealed=false;
+    renderAll();
+    showMessage("已装入参考配置。可以更换任意一个组件。")
+  });
+  document.getElementById("compactButton").addEventListener("click",()=>{
+    slots={motor:"motor_s_pro",blade:"blade_s_pro",battery:"battery_s_pro"};
+    selected=null;
+    sealed=false;
+    renderAll();
+    showMessage("已装入 S / S / S 高性能配置：尺寸相同，能力分也可以非常高。")
+  });
+  document.getElementById("wideButton").addEventListener("click", async ()=>{
+    const target=document.getElementById("wideViewport");
+    try {
+      if(document.fullscreenElement){await document.exitFullscreen();}
+      else if(target.requestFullscreen){await target.requestFullscreen();}
+      else{throw new Error("Fullscreen unavailable");}
+    } catch(e) {
+      showMessage("此页面不支持全屏；可以在此横向滚动，或将 ChatGPT 页面在新窗口打开。");
+    }
+  });
+  document.addEventListener("fullscreenchange",()=>{
+    document.getElementById("wideButton").textContent=document.fullscreenElement?"退出全屏":"⛶ 宽屏显示";
+  });
+  renderAll();
+})();
+</script>
+</body>
+</html>
