@@ -94,6 +94,19 @@
     .remove:hover { background:#e2e5de; color:var(--ink); }
     .message { color:#a05249; font-size:12px; min-height:18px; margin-top:10px; }
     .muted-placeholder { color:#969b94; }
+    .score-heading { font-size:12px; font-weight:700; color:#777f78; margin:10px 0 12px; }
+    .score-row { display:flex; align-items:center; gap:8px; margin:0 0 15px; min-width:0; }
+    .score-name { width:40px; flex:0 0 40px; font-size:12px; }
+    .score-cells { display:grid; grid-template-columns:repeat(10,minmax(0,1fr)); gap:2px; flex:1; min-width:0; }
+    .score-cell { height:12px; background:#e8ebe7; border:1px solid #dfe4df; border-radius:2px; }
+    .score-cell.filled { background:#627a68; border-color:#627a68; }
+    .score-grade { font-size:13px; font-weight:750; width:16px; text-align:right; }
+    .battery-panel { border-top:1px solid #e5e8e3; margin-top:12px; padding-top:13px; }
+    .battery-value { display:flex; align-items:baseline; justify-content:space-between; gap:8px; font-size:12px; padding:6px 0; }
+    .battery-value b { font-size:13px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .result-divider { margin:15px 0; }
+    .clock-note { margin-top:9px; color:#899089; font-size:10px; }
+
     #rotor { transform-origin: 260px 154px; transform-box: view-box; }
     .spinning #rotor { animation: fan-spin 1.3s linear infinite; }
     @keyframes fan-spin { to { transform:rotate(360deg); } }
@@ -135,7 +148,7 @@
     .horizontal-viewport .layout { display:grid; grid-template-columns:220px minmax(0,1fr); gap:12px; align-items:start; }
     .horizontal-viewport .parts { min-height:620px; padding:12px 9px; max-height:690px; overflow-y:auto; }
     .horizontal-viewport .main { gap:12px; }
-    .horizontal-viewport .upper { display:grid; grid-template-columns:minmax(380px,1.6fr) minmax(210px,.88fr) minmax(230px,1fr); gap:12px; min-height:540px; }
+    .horizontal-viewport .upper { display:grid; grid-template-columns:minmax(360px,1.5fr) minmax(255px,1fr) minmax(235px,.9fr); gap:12px; min-height:540px; }
     .horizontal-viewport .developer { grid-column:auto; }
     .horizontal-viewport .developer .metrics { display:flex; flex-direction:column; gap:6px; }
     .horizontal-viewport .developer .metric { padding:8px 9px; font-size:11px; }
@@ -163,7 +176,7 @@
 <div class="app">
   <header class="top">
     <h1>机械小店 · 桌面风扇</h1>
-    <div style="display:flex;gap:10px;align-items:center"><small>参考配置：M / M / M · 规格和能力独立</small><button type="button" class="wide-action" id="wideButton">⛶ 宽屏显示</button></div>
+    <div style="display:flex;gap:10px;align-items:center"><small>参考配置 M/M/M · 静态 F–S 评分 · 仅电量倒计时</small><button type="button" class="wide-action" id="wideButton">⛶ 宽屏显示</button></div>
   </header>
   <div class="layout">
     <aside class="panel parts">
@@ -189,17 +202,21 @@
         </section>
 
         <section class="panel results" id="results">
-          <h2>玩家看到的结果</h2>
-          <div class="result-empty">合壳测试后显示物品标签</div>
+          <h2>玩家看到的属性</h2>
+          <div class="result-empty">合壳测试后显示评分</div>
           <div class="result-body">
-            <div class="tag-title">优秀特性 · 绿色</div>
-            <div class="tag-area" id="goodTags"></div>
-            <hr class="result-divider" />
-            <div class="tag-title">通用属性 · 白色</div>
-            <div class="tag-area" id="neutralTags"></div>
-            <hr class="result-divider" />
-            <div class="tag-title">设备特有问题</div>
-            <div class="tag-area" id="badTags"></div>
+             <div class="score-heading">通用属性 · 10格评分</div>
+             <div id="generalScores"></div>
+             <hr class="result-divider" />
+             <div class="score-heading">风扇专属属性 · 10格评分</div>
+             <div id="specialScores"></div>
+             <div class="battery-panel">
+               <div class="score-heading">电池状态 · 仅此项随运行减少</div>
+               <div class="battery-value"><span>剩余电量</span><b id="batteryRemaining">—</b></div>
+               <div class="battery-value"><span>预计续航</span><b id="batteryTime">—</b></div>
+               <div class="clock-note">体验加速：现实 1 秒 = 游戏 5 分钟</div>
+             </div>
+           
           </div>
         </section>
 
@@ -214,16 +231,22 @@
               <div class="metric"><span>供电倍率</span><b id="supplyValue">—</b></div>
               <div class="metric"><span>综合倍率</span><b id="multiplierValue">—</b></div>
               <div class="metric"><span>电机 / 扇叶尺寸比</span><b id="ratioValue">—</b></div>
-              <div class="dev-divider">电力与寿命</div>
-              <div class="metric"><span>耗电量</span><b id="powerValue">—</b></div>
+              <div class="dev-divider">耗电和耐久（静态）</div>
+              <div class="metric"><span>耗电功率</span><b id="powerValue">—</b></div>
+              <div class="metric"><span>扇叶/电机负载倍率</span><b id="loadRatioValue">—</b></div>
               <div class="metric"><span>电源输出 / 需求</span><b id="powerMarginValue">—</b></div>
-              <div class="metric"><span>预计寿命</span><b id="lifeValue">—</b></div>
-              <div class="dev-divider">设备专属隐藏因子</div>
-              <div class="metric"><span>送风指数</span><b id="airflowValue">—</b></div>
+              <div class="metric"><span>预计损耗速率</span><b id="wearRateValue">—</b></div>
+              <div class="metric"><span>节能评分</span><b id="energyScoreValue">—</b></div>
+              <div class="metric"><span>耐久评分</span><b id="durabilityScoreValue">—</b></div>
+              <div class="dev-divider">风扇专属隐藏因子</div>
+              <div class="metric"><span>送风因子</span><b id="airflowValue">—</b></div>
               <div class="metric"><span>噪声因子</span><b id="noiseValue">—</b></div>
               <div class="metric"><span>振动因子</span><b id="wobbleValue">—</b></div>
+              <div class="dev-divider">电量（动态）</div>
+              <div class="metric"><span>剩余电量</span><b id="devChargeValue">—</b></div>
+              <div class="metric"><span>预计剩余时间</span><b id="devTimeValue">—</b></div>
             </div>
-            <div class="ref-note">参考图纸：M 电机 + M 扇叶 + M 电池。尺寸只影响搭配；零件本身的能力分独立于 S / M / L。</div>
+            <div class="ref-note">F–S 与十格评分均在装配完成时固定。耐久是损耗速率的评价，不是倒计时。运行期间只有电池电量与续航时间会变。</div>
           </div>
         </section>
       </div>
@@ -280,6 +303,9 @@
   let slots = {motor:null, blade:null, battery:null};
   let selected = null;
   let sealed = false;
+  let remainingWh = null;
+  let lastChargeTick = Date.now();
+  const GAME_MINUTES_PER_REAL_SECOND = 5;
   let messageTimeout;
 
   const getItem = (type,id) => catalog[type].find(item=>item.id===id) || null;
@@ -328,6 +354,7 @@
     const found = getItem(type,id);
     if (!found) return;
     slots[type] = id;
+    if (type === "battery") remainingWh = found.capacity;
     selected = null;
     renderAll();
     showMessage(`${found.name} 已吸附到${titles[type]}槽位。`);
@@ -369,72 +396,98 @@
     root.querySelectorAll(".remove").forEach(btn=>btn.addEventListener("click",e=>{
       e.stopPropagation();if(sealed)return;
       slots[btn.dataset.type]=null;
+      if (btn.dataset.type === "battery") remainingWh = null;
       renderAll();
     }));
   }
 
-  // 游戏平衡规则 v2：同一规格可以有不同能力，同一能力可以分布在不同规格。
+  // 游戏平衡规则 v3：同一规格可以有不同能力，同一能力可以分布在不同规格。
   // 1. 基础性能 = 三个组件的能力分 q 的算术平均，与 size 完全无关。
   // 2. 图纸 M/M/M 的参考比例为 1.00；电机与扇叶的尺寸比例影响拟合倍率。
   //    S/S/S 与 L/L/L 也能保持尺寸比例合理，大小本身不自动构成惩罚。
   // 3. 电池输出不足时附加乘法惩罚；电池容量并不直接提高基础性能。
-  // 4. 耗电由电机的独立 watts 与扇叶的独立 load、规格偏差决定。
-  // 5. 寿命由部件耐久和规格不匹配/供电不足共同决定。
-  // 6. 风扇特有标签由送风、噪声和振动因子计算；所有最终数值仅在开发者面板展示。
+  // 4. 耗电由电机独立 watts、扇叶 load，以及仅在扇叶大于电机时生效的额外负载倍率决定。
+  // 5. 静态损耗速率由部件耐久和规格不匹配/供电不足共同决定，不会随运行扣评分。
+  // 6. 风扇自己的风量、静音、稳定都映射为十格静态评分；仅剩余电量与预计续航在运行中变。
+  // v3: 两种装配结果。固定评分在装配后不变，电池 Wh 单独消耗。
   function simulate(m,b,bat) {
     const qualityMean=(m.q+b.q+bat.q)/3;
     const actualRatio=sizeScale[m.size]/sizeScale[b.size];
-    const referenceRatio=sizeScale[reference.motor]/sizeScale[reference.blade]; // M/M = 1
+    const referenceRatio=1; // 图纸 M 电机 / M 扇叶
     const deviation=Math.abs(Math.log(actualRatio/referenceRatio));
     const sizeFit=clamp(Math.exp(-1.05*deviation*deviation),0.53,1);
-    const neededPower=2.4 + m.watts*(0.72+0.28*b.load);
+
+    // 负载过大才有额外功耗惩罚。大电机 + 小扇叶不会被尺寸差惩罚。
+    const loadRatio=Math.max(1,sizeScale[b.size]/sizeScale[m.size]);
+    const coreDraw=2.4+m.watts*(0.72+0.28*b.load);
+    const neededPower=coreDraw*loadRatio;
+    const power=neededPower*bat.loss;
     const supplyRatio=bat.output/(neededPower*1.15);
     const supplyFit=clamp(Math.pow(supplyRatio,0.58),0.62,1);
     const multiplier=sizeFit*supplyFit;
     const performance=Math.round(qualityMean*multiplier);
-    const power=neededPower*(1+0.18*deviation*deviation)*bat.loss;
-    const overload=Math.max(0,(sizeScale[b.size]/sizeScale[m.size])-1);
+
+    const overload=Math.max(0,loadRatio-1);
     const shortage=Math.max(0,1-supplyRatio);
     const avgDurability=(m.durability+b.durability+bat.durability)/3;
-    const lifetime=Math.max(250,Math.round(((650+18*avgDurability)*Math.exp(-1.35*deviation*deviation-1.45*shortage*shortage-0.30*overload*overload))/10)*10);
+    // 这是损耗速率(%/游戏小时)，不是寿命，也不在运行时扣任何评分。
+    const wearRate=(0.025+(100-avgDurability)*0.0014)*
+      Math.exp(1.35*deviation*deviation+1.45*shortage*shortage+0.30*overload*overload);
+
     const airflow=b.airflow*Math.pow(sizeFit,0.6)*supplyFit;
     const noise=m.noise+b.noise+0.22*deviation+0.10*overload;
     const wobble=(1-b.balance)*1.35+0.50*deviation+0.08*overload;
 
-    const good=[];
-    if(airflow>=2.4 && performance>=65) good.push("强劲送风");
-    if(noise<0.22 && performance>=65 && supplyFit>=0.95) good.push("安静送风");
-    if(wobble<0.13 && performance>=70) good.push("运转平稳");
-
-    const bad=[];
-    if(wobble>=0.31) bad.push({name:"扇叶抖动",severity:wobble});
-    if(noise>=0.54) bad.push({name:"风噪偏大",severity:noise-0.18});
-    if(overload>=0.25) bad.push({name:"转动吃力",severity:overload+0.20});
-    if(supplyRatio<0.86) bad.push({name:"转速不稳",severity:0.86-supplyRatio+0.33});
-    bad.sort((a,b)=>b.severity-a.severity);
-
-    return {performance,power,lifetime,good:good.slice(0,2),bad:bad.slice(0,2).map(x=>x.name),
-      multiplier,qualityMean,sizeFit,supplyFit,actualRatio,referenceRatio,supplyRatio,airflow,noise,wobble};
+    // 同一个 0–100 标准输出评分；越高越好（节能=低耗电；耐久=低损耗）。
+    const energyScore=clamp(100-1.7*power,0,100);
+    const durabilityScore=clamp(100-650*wearRate,0,100);
+    const windScore=clamp(airflow/2.7*100,0,100);
+    const quietScore=clamp(100-noise*145,0,100);
+    const stabilityScore=clamp(100-wobble*250,0,100);
+    return {performance, power, wearRate, energyScore, durabilityScore,
+      windScore, quietScore, stabilityScore, multiplier, qualityMean, sizeFit,
+      supplyFit, actualRatio, referenceRatio, supplyRatio, loadRatio,
+      airflow,noise,wobble};
   }
 
-  // 玩家只看定性等级；阈值在此统一定义，恰好 30 / 60 / 85 属于后一档。
-  function performanceTag(v) {
-    if (v<30) return "性能不足";
-    if (v<60) return "普通性能";
-    if (v<85) return "性能良好";
-    return "高性能";
+  // F-S、十格柱子仅映射静态评分，不会在运行时发生变化。
+  function grade(score) {
+    if(score>=90)return "S";
+    if(score>=80)return "A";
+    if(score>=65)return "B";
+    if(score>=50)return "C";
+    if(score>=35)return "D";
+    if(score>=20)return "E";
+    return "F";
   }
-  function powerTag(watts) {
-    if (watts<13) return "低耗电";
-    if (watts<22) return "正常耗电";
-    if (watts<32) return "耗电偏高";
-    return "高耗电";
+  function scoreRow(label,score) {
+    const count=clamp(Math.round(score/10),0,10);
+    const segments=Array.from({length:10},(_,i)=>`<span class="score-cell ${i<count?'filled':''}"></span>`).join('');
+    return `<div class="score-row" title="${esc(label)}：${Math.round(score)}/100">
+      <span class="score-name">${esc(label)}</span>
+      <span class="score-cells" aria-label="10格评分：${count}格">${segments}</span>
+      <strong class="score-grade">${grade(score)}</strong></div>`;
   }
-  function lifetimeTag(hours) {
-    if (hours<1200) return "寿命偏短";
-    if (hours<1850) return "普通寿命";
-    if (hours<2300) return "寿命较长";
-    return "经久耐用";
+  function displayRemainingTime(wh,watts) {
+    if(!Number.isFinite(wh)||!Number.isFinite(watts)||watts<=0)return "—";
+    const seconds=Math.max(0,Math.floor(wh/watts*3600));
+    const h=Math.floor(seconds/3600),m=Math.floor(seconds%3600/60),sec=seconds%60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+  }
+  function renderCharge() {
+    if(!sealed||!slotTypes.every(t=>!!current(t)))return;
+    const bat=current("battery");
+    const s=simulate(current("motor"),current("blade"),bat);
+    const wh=Math.max(0,Math.min(bat.capacity,remainingWh??bat.capacity));
+    const charge=`${wh.toFixed(1)} / ${bat.capacity} Wh`;
+    const time=displayRemainingTime(wh,s.power);
+    for(const [id,val] of Object.entries({batteryRemaining:charge,batteryTime:time,
+      devChargeValue:charge,devTimeValue:time})) {
+      const el=document.getElementById(id);if(el)el.textContent=val;
+    }
+    const fan=document.getElementById("desk");
+    fan.classList.toggle("spinning",sealed&&wh>0);
+    document.getElementById("assemblyState").textContent=wh>0?"外壳已安装 · 运行中":"外壳已安装 · 电量耗尽";
   }
 
   function renderResults() {
@@ -442,11 +495,12 @@
     for(const id of ["results","devPanel"]) document.getElementById(id).classList.toggle("ready",ready);
     if(!ready)return;
     const s=simulate(current("motor"),current("blade"),current("battery"));
-    // 玩家面板：只有标签，没有数字。
-    document.getElementById("goodTags").innerHTML=s.good.length?s.good.map(t=>`<span class="tag good">${esc(t)}</span>`).join(""):'<span class="no-tags">暂无突出优秀特性</span>';
-    document.getElementById("neutralTags").innerHTML=[performanceTag(s.performance),powerTag(s.power),lifetimeTag(s.lifetime)].map(t=>`<span class="tag neutral">${esc(t)}</span>`).join("");
-    document.getElementById("badTags").innerHTML=s.bad.length?s.bad.map(t=>`<span class="tag bad">${esc(t)}</span>`).join(""):'<span class="no-tags">没有明显的问题</span>';
-    // 开发者面板：具体数值及关键中间过程，供我们后续调参。
+    document.getElementById("generalScores").innerHTML=[
+      scoreRow("性能",s.performance),scoreRow("节能",s.energyScore),scoreRow("耐久",s.durabilityScore)
+    ].join("");
+    document.getElementById("specialScores").innerHTML=[
+      scoreRow("风量",s.windScore),scoreRow("静音",s.quietScore),scoreRow("稳定",s.stabilityScore)
+    ].join("");
     const values={
       performanceValue:`${s.performance} / 100`,
       qualityMeanValue:s.qualityMean.toFixed(1),
@@ -455,13 +509,17 @@
       multiplierValue:s.multiplier.toFixed(3),
       ratioValue:`${s.actualRatio.toFixed(2)} （参考 ${s.referenceRatio.toFixed(2)}）`,
       powerValue:`${s.power.toFixed(1)} W`,
+      loadRatioValue:s.loadRatio.toFixed(3)+"×",
       powerMarginValue:`${(s.supplyRatio*1.15).toFixed(2)} 倍`,
-      lifeValue:`${fmt(s.lifetime)} 小时`,
+      wearRateValue:s.wearRate.toFixed(4)+" %/游戏小时",
+      energyScoreValue:s.energyScore.toFixed(1),
+      durabilityScoreValue:s.durabilityScore.toFixed(1),
       airflowValue:s.airflow.toFixed(3),
       noiseValue:s.noise.toFixed(3),
       wobbleValue:s.wobble.toFixed(3)
     };
-    for(const [id,value] of Object.entries(values)) document.getElementById(id).textContent=value;
+    for(const [id,value] of Object.entries(values))document.getElementById(id).textContent=value;
+    renderCharge();
   }
 
   function renderDesk() {
@@ -522,11 +580,13 @@
   document.getElementById("sealButton").addEventListener("click",()=>{
     if(!sealed && !slotTypes.every(t=>current(t)))return;
     sealed=!sealed;
+    lastChargeTick=Date.now();
     selected=null;
     renderAll();
   });
   document.getElementById("sampleButton").addEventListener("click",()=>{
     slots={motor:"motor_m",blade:"blade_m",battery:"battery_m"};
+    remainingWh=catalog.battery.find(x=>x.id==="battery_m").capacity;
     selected=null;
     sealed=false;
     renderAll();
@@ -534,6 +594,7 @@
   });
   document.getElementById("compactButton").addEventListener("click",()=>{
     slots={motor:"motor_s_pro",blade:"blade_s_pro",battery:"battery_s_pro"};
+    remainingWh=catalog.battery.find(x=>x.id==="battery_s_pro").capacity;
     selected=null;
     sealed=false;
     renderAll();
@@ -552,6 +613,19 @@
   document.addEventListener("fullscreenchange",()=>{
     document.getElementById("wideButton").textContent=document.fullscreenElement?"退出全屏":"⛶ 宽屏显示";
   });
+  // 模拟运行时间。评分一律固定；只修改 remainingWh 和两个时间文本。
+  setInterval(()=>{
+    const now=Date.now();
+    const elapsed=Math.max(0,Math.min(2,(now-lastChargeTick)/1000));
+    lastChargeTick=now;
+    if(!sealed||!slotTypes.every(t=>!!current(t)))return;
+    if(remainingWh===null)remainingWh=current("battery").capacity;
+    if(remainingWh>0){
+      const s=simulate(current("motor"),current("blade"),current("battery"));
+      remainingWh=Math.max(0,remainingWh-s.power*GAME_MINUTES_PER_REAL_SECOND/60*elapsed);
+    }
+    renderCharge();
+  },250);
   renderAll();
 })();
 </script>
