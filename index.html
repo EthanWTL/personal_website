@@ -80,20 +80,25 @@
             <p>
               Do video models represent interactions before they happen? We probe frozen Wan2.2-5B by noising real videos, hooking all 30 DiT blocks in a single forward pass, and analyzing token features with PCA and object-to-object attention, on CLEVRER collisions vs. near-misses and Something-Something V2 (SSv2) contact actions.
               While two objects approach each other, we observe no change that anticipates the interaction: an object about to be hit matches the static objects until contact, and its features change only after the collision.
-              The leading principal components capture object segmentation and motion, but the interaction itself does not stand out in them: near-misses resemble collisions, objects in contact keep distinct features, and attention between objects follows image distance rather than upcoming collisions.
+              The leading principal components capture object segmentation and motion, but the interaction itself does not stand out in them: near-misses resemble collisions, objects in contact keep distinct features (a coin flicked by a finger stays grouped with the other coin, never with the hand), and attention between objects follows image distance rather than upcoming collisions.
               We therefore propose interaction-aware representation learning that aligns the tokens of objects about to interact in a shared feature subspace, distinct from non-interacting tokens, so that future interactions emerge among the leading principal components instead of staying entangled with appearance and object-level features.
             </p>
           </div>
 
-          <div class="project-media media-grid media-grid-2 media-grid-natural">
+          <div class="project-media media-grid media-grid-natural">
             <figure class="media-item">
-              <img class="media-img" src="asset/pca_clevrer_collision.gif" alt="CLEVRER collision next to the top-3 PCA components of Wan2.2 layer 27 features" loading="lazy">
+              <img class="media-img" src="asset/pca_clevrer_collision.gif" alt="CLEVRER collision above the top-3 PCA components of Wan2.2 layer 27 features" loading="lazy">
               <figcaption class="media-caption">CLEVRER (red: moving object, cyan: the object it hits): the hit object keeps the static-object color until contact, then switches.</figcaption>
             </figure>
 
             <figure class="media-item">
-              <img class="media-img" src="asset/pca_ssv2_collide.gif" alt="SSv2 video of two cups colliding next to the top-3 PCA components of Wan2.2 layer 21 features" loading="lazy">
-              <figcaption class="media-caption">SSv2: the two cups keep separate colors even in contact; no shared interaction feature appears in the top components.</figcaption>
+              <img class="media-img" src="asset/pca_ssv2_collide.gif" alt="SSv2 video of two cups colliding above the top-3 PCA components of Wan2.2 layer 21 features" loading="lazy">
+              <figcaption class="media-caption">SSv2: the two cups keep separate colors, even in contact.</figcaption>
+            </figure>
+
+            <figure class="media-item">
+              <img class="media-img" src="asset/pca_ssv2_coins.gif" alt="SSv2 video of a finger flicking one coin into another above the top-3 PCA components of Wan2.2 layer 21 features" loading="lazy">
+              <figcaption class="media-caption">SSv2: across layers and noise levels, the two coins share one color and the hand another; the flicked coin never joins the hand.</figcaption>
             </figure>
           </div>
         </li>
