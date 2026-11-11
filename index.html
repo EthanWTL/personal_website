@@ -67,8 +67,8 @@
             </figure>
 
             <figure class="media-item">
-              <img class="media-img" src="asset/native_weight_memory.svg" alt="Diagram: each clean chunk writes an update into two fast query heads per attention layer, the next chunk reads it, and there is no attention across chunks" loading="lazy">
-              <figcaption class="media-caption">The memory is the model's own weights: each clean chunk writes &Delta;W into two query heads per layer, and the next chunk reads it.</figcaption>
+              <img class="media-img" src="asset/native_weight_memory.svg" alt="Diagram: in every attention layer, 2 of the 16 query heads are fast weights with a 4-block block-diagonal update, the other 14 heads keep their slow weights, K and V stay fixed; each clean chunk writes the update and the next chunk reads it, with no attention across chunks" loading="lazy">
+              <figcaption class="media-caption">Test-time training on the model's own W<sub>q</sub> only: 2 of 16 heads per layer are fast (4 block-diagonal blocks); the other 14 keep their slow weights as a fallback.</figcaption>
             </figure>
           </div>
         </li>
