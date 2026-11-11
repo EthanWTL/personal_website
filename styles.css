@@ -289,9 +289,10 @@ p{margin:10px 0}
 #projects .project-media.media-grid-feature .media-stack {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 16px;
   min-width: 0;
-  align-self: center;
+  align-self: stretch;
 }
 
 #projects .project-media.media-grid.media-grid-feature .media-item-wide {
@@ -300,6 +301,26 @@ p{margin:10px 0}
 
 @media (max-width: 640px) {
   #projects .project-media.media-grid.media-grid-feature {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Two figures per row (one result + one diagram, or two results) */
+#projects .project-media.media-grid.media-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Figures keep their own shape (no 16:9 letterboxing) and line up at the top */
+#projects .project-media.media-grid.media-grid-natural {
+  align-items: start;
+}
+
+#projects .project-media.media-grid.media-grid-natural .media-img {
+  aspect-ratio: auto;
+}
+
+@media (max-width: 640px) {
+  #projects .project-media.media-grid.media-grid-2 {
     grid-template-columns: 1fr;
   }
 }

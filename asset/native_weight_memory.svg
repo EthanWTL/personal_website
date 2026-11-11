@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 298" width="520" height="298" role="img" aria-labelledby="t d">
+  <title id="t">Native-weight test-time memory</title>
+  <desc id="d">Three consecutive video chunks. In every attention layer, 14 of the 16 query heads are fixed weights and 2 are fast weights. Each clean chunk writes an update dW into the fast heads, dW is carried to the next chunk, and the chunk being generated reads it through its queries. There is no attention across chunks.</desc>
+  <defs>
+    <marker id="ah-o" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#eb6834"/>
+    </marker>
+    <marker id="ah-k" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+    </marker>
+    <marker id="ah-g" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9ca3af"/>
+    </marker>
+    <!-- one W_q: 16 head rows, the last 2 are the fast (memory) heads -->
+    <g id="wq">
+      <rect x="-56" y="0" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="5.6" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="11.2" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="16.8" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="22.4" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="28" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="33.6" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="39.2" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="44.8" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="50.4" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="56" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="61.6" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="67.2" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="72.8" width="112" height="4" rx="1" fill="#d1d5db"/>
+      <rect x="-56" y="80.4" width="112" height="4.6" rx="1" fill="#eb6834"/>
+      <rect x="-56" y="86.6" width="112" height="4.6" rx="1" fill="#eb6834"/>
+    </g>
+  </defs>
+
+  <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" text-anchor="middle">
+    <!-- chunks -->
+    <g fill="#ffffff" stroke="#9ca3af" stroke-width="1.2">
+      <rect x="18" y="8" width="140" height="42" rx="8"/>
+      <rect x="190" y="8" width="140" height="42" rx="8"/>
+      <rect x="362" y="8" width="140" height="42" rx="8" stroke-dasharray="4 3"/>
+    </g>
+    <g font-size="14.5" font-weight="700" fill="#111827">
+      <text x="88" y="26">chunk t−1</text>
+      <text x="260" y="26">chunk t</text>
+      <text x="432" y="26">chunk t+1</text>
+    </g>
+    <g font-size="13" fill="#6b7280">
+      <text x="88" y="42">clean</text>
+      <text x="260" y="42">clean</text>
+      <text x="432" y="42">being generated</text>
+    </g>
+
+    <!-- no attention across chunks -->
+    <g stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="3 3" fill="none">
+      <path d="M160 29 H188"/>
+      <path d="M332 29 H360"/>
+    </g>
+    <g stroke="#dc2626" stroke-width="2" stroke-linecap="round">
+      <path d="M169 24 l10 10 M179 24 l-10 10"/>
+      <path d="M341 24 l10 10 M351 24 l-10 10"/>
+    </g>
+
+    <!-- write (clean chunks) / read (generated chunk) -->
+    <g stroke="#4b5563" stroke-width="1.4" fill="none">
+      <path d="M88 52 V76" marker-end="url(#ah-k)"/>
+      <path d="M260 52 V76" marker-end="url(#ah-k)"/>
+      <path d="M432 76 V52" marker-end="url(#ah-k)"/>
+    </g>
+    <g font-size="13" fill="#374151" text-anchor="start">
+      <text x="94" y="68">write</text>
+      <text x="266" y="68">write</text>
+      <text x="438" y="68">read</text>
+    </g>
+
+    <!-- W_q of one layer, per chunk -->
+    <g fill="#f9fafb" stroke="#e5e7eb" stroke-width="1.2">
+      <rect x="18" y="80" width="140" height="124" rx="8"/>
+      <rect x="190" y="80" width="140" height="124" rx="8"/>
+      <rect x="362" y="80" width="140" height="124" rx="8"/>
+    </g>
+    <g font-size="13" fill="#6b7280">
+      <text x="88" y="97">query proj. W<tspan font-size="9" dy="3">q</tspan></text>
+      <text x="260" y="97">query proj. W<tspan font-size="9" dy="3">q</tspan></text>
+      <text x="432" y="97">query proj. W<tspan font-size="9" dy="3">q</tspan></text>
+    </g>
+    <use href="#wq" x="88" y="106"/>
+    <use href="#wq" x="260" y="106"/>
+    <use href="#wq" x="432" y="106"/>
+
+    <!-- the memory: dW carried from chunk to chunk through the fast heads only -->
+    <g stroke="#eb6834" stroke-width="2.4" fill="none">
+      <path d="M146 195 H202" marker-end="url(#ah-o)"/>
+      <path d="M318 195 H374" marker-end="url(#ah-o)"/>
+    </g>
+    <g font-size="14" font-weight="700" fill="#c2410c">
+      <text x="174" y="188">ΔW</text>
+      <text x="346" y="188">ΔW</text>
+    </g>
+
+    <!-- legend -->
+    <g text-anchor="start" font-size="13.5" fill="#374151">
+      <rect x="18" y="220" width="14" height="8" rx="1.5" fill="#eb6834"/>
+      <text x="40" y="228">fast weights = memory: 2 of 16 query heads, every layer</text>
+      <rect x="18" y="240" width="14" height="8" rx="1.5" fill="#d1d5db"/>
+      <text x="40" y="248">all other weights stay fixed at inference</text>
+      <path d="M20 259 l9 9 M29 259 l-9 9" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
+      <text x="40" y="268">no attention across chunks: state passes only through ΔW</text>
+      <text x="40" y="288" fill="#6b7280">write = delta rule, block-diagonal, then row norms restored</text>
+    </g>
+  </g>
+</svg>
