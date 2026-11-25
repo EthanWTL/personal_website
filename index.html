@@ -53,10 +53,13 @@
           <div class="item-body">
             <div class="project-title">Native-Weight Test-Time Memory for Stateful Video World Models</div>
             <p>
-              Video world models must remember what they can no longer see. We store this memory in the model's own weights: two query heads in every attention layer serve as fast weights, written once per clean chunk by a block-diagonal delta rule with row-norm restoration, while all other weights stay fixed at inference.
-              With no attention across chunks, the state can pass between chunks only through these weights; to our knowledge, this is the first video world model whose memory lives in its own attention projection weights rather than in an added memory module.
-              We re-implemented the Shell Game hidden-state tracking benchmark from scratch (31K rendered cup-swap episodes, a 201M-parameter chunk-causal video DiT trained with diffusion forcing), where attention alone tracks the hidden ball within the 5-swap training horizon but falls to chance beyond it.
-              With native-weight memory, the model reaches 0.98 accuracy at 30 swaps (6&times; the training horizon, two seeds), versus 0.69 reported for the benchmark paper's dedicated test-time-training branch (LaCT), with 1/24 of its fast-weight state and about 1/6 of its added parameters.
+              <strong>Native query weights as a state pointer.</strong> We store a video world model's state in its own attention query weights rather than in an added memory module (to our knowledge, the first to do so): in every layer, two of the sixteen query heads act as fast weights, written once per clean chunk by a block-diagonal delta rule, while the other fourteen keep their slow weights as a fallback.
+              The intuition is state as a pointer into the world: the memory only changes where the model looks, while keys and values keep describing the scene.
+              This view also explains why writing to queries alone is so efficient: on the Shell Game hidden-state tracking benchmark, the model reaches 0.98 accuracy at 30 swaps (6&times; its 5-swap training horizon), versus 0.69 reported for the benchmark paper's test-time-training branch (LaCT), with about 1/6 of its added parameters and 1/24 of its fast-weight state.
+            </p>
+            <p>
+              <strong>Regeneration keeps the state consistent.</strong> Before every write, the model reads its own state by imagining the reveal, deciding where the ball is, then clears its memory and rewrites it from what it imagined.
+              The state stays stationary instead of drifting, so rollouts are in principle unbounded: over 1,000 swaps (200&times; the training horizon, 64 episodes), the memory never lost the ball, in both teacher-forced and fully self-generated rollouts.
             </p>
           </div>
 
@@ -67,8 +70,8 @@
             </figure>
 
             <figure class="media-item">
-              <img class="media-img" src="asset/native_weight_memory.svg" alt="Diagram: in every attention layer, 2 of the 16 query heads are fast weights with a 4-block block-diagonal update, the other 14 heads keep their slow weights, K and V stay fixed; each clean chunk writes the update and the next chunk reads it, with no attention across chunks" loading="lazy">
-              <figcaption class="media-caption">Test-time training on the model's own W<sub>q</sub> only: 2 of 16 heads per layer are fast (4 block-diagonal blocks); the other 14 keep their slow weights as a fallback.</figcaption>
+              <img class="media-img" src="asset/native_weight_memory.svg" alt="Diagram: in every attention layer only the query projection holds the state, with 2 of 16 heads as fast weights (4 block-diagonal blocks) and 14 slow heads as a fallback, while keys and values keep describing the scene; below, regeneration before every write: write the swap, imagine the reveal, clear the memory, rewrite it from the imagined reveal, then the next swap" loading="lazy">
+              <figcaption class="media-caption">Top: only W<sub>q</sub> holds the state (2 fast heads, 4 block-diagonal blocks, 14 heads as fallback). Bottom: regeneration rewrites the memory from the model's own imagined reveal before every write.</figcaption>
             </figure>
           </div>
         </li>
@@ -78,27 +81,33 @@
           <div class="item-body">
             <div class="project-title">Learning PCA-Discoverable Interaction Representations</div>
             <p>
-              Do video models represent interactions before they happen? We probe frozen Wan2.2-5B by noising real videos, hooking all 30 DiT blocks in a single forward pass, and analyzing token features with PCA and object-to-object attention, on CLEVRER collisions vs. near-misses and Something-Something V2 (SSv2) contact actions.
-              While two objects approach each other, we observe no change that anticipates the interaction: an object about to be hit matches the static objects until contact, and its features change only after the collision.
-              The leading principal components capture object segmentation and motion, but the interaction itself does not stand out in them: near-misses resemble collisions, objects in contact keep distinct features (a coin flicked by a finger stays grouped with the other coin, never with the hand), and attention between objects follows image distance rather than upcoming collisions.
-              We therefore propose interaction-aware representation learning that aligns the tokens of objects about to interact in a shared feature subspace, distinct from non-interacting tokens, so that future interactions emerge among the leading principal components instead of staying entangled with appearance and object-level features.
+              <strong>Interactions show up only after they happen.</strong> In a frozen video model (Wan2.2-5B), the leading principal components of token features capture object segmentation and motion, but nothing anticipates an interaction: on CLEVRER and Something-Something V2, an object about to be hit looks like the static objects and changes only after the collision.
+            </p>
+            <p>
+              <strong>A group-variance loss pushes the interaction apart.</strong> We split the tokens into the object about to be interacted with and everything else, and train with L = 1 &minus; B/T, which raises the between-group variance B relative to the total variance T.
+              The two groups are pushed apart, so the interaction becomes a dominant direction of variance that PCA finds in its leading components without ever being supervised; in a video model trained on GridGrasp (a gripper grasping one object among look-alikes), B/T at the trained layers rises from 0.04&ndash;0.09 to 0.96&ndash;0.99 before contact.
+            </p>
+            <p>
+              <strong>Without a prompt it anticipates; with a prompt it points.</strong> With a text prompt, the leading components point straight at the item the model will grasp from the first frame, instead of following the gripper.
+              Without a prompt or future frames, the model falls back to anticipating the action: the marking follows the gripper, lighting up objects it passes on the way, and settles on the target only as the gripper reaches it. No label taught this switch.
+              The marked object is the one the model believes it will grasp: in its own generations it matches the object actually grasped, 104 of 104 times without a prompt, and 44 of 44 times when the model grasps a different object than the prompt asked for.
             </p>
           </div>
 
           <div class="project-media media-grid media-grid-natural">
             <figure class="media-item">
-              <img class="media-img" src="asset/pca_clevrer_collision.gif" alt="CLEVRER collision above the top-3 PCA components of Wan2.2 layer 27 features" loading="lazy">
-              <figcaption class="media-caption">CLEVRER (red: moving object, cyan: the object it hits): the hit object keeps the static-object color until contact, then switches.</figcaption>
+              <img class="media-img" src="asset/pca_clevrer_collision.gif" alt="CLEVRER collision above the top-3 PCA components of frozen Wan2.2 layer 27 features" loading="lazy">
+              <figcaption class="media-caption">Frozen Wan2.2 on CLEVRER (red: moving object, cyan: the object it hits): the hit object keeps the static-object color until contact, then switches.</figcaption>
             </figure>
 
             <figure class="media-item">
-              <img class="media-img" src="asset/pca_ssv2_collide.gif" alt="SSv2 video of two cups colliding above the top-3 PCA components of Wan2.2 layer 21 features" loading="lazy">
-              <figcaption class="media-caption">SSv2: the two cups keep separate colors, even in contact.</figcaption>
+              <img class="media-img" src="asset/pca_bt_pushapart.gif" alt="Four identical prisms: in the baseline's top-3 PCA components all four look alike; with the B/T loss the prism to grasp is separated from the others" loading="lazy">
+              <figcaption class="media-caption">Four identical prisms (red: the one to grasp; cyan: the one grasped in the paired video). The baseline's top PCs see four alike; the B/T loss pushes the target apart.</figcaption>
             </figure>
 
             <figure class="media-item">
-              <img class="media-img" src="asset/pca_ssv2_coins.gif" alt="SSv2 video of a finger flicking one coin into another above the top-3 PCA components of Wan2.2 layer 21 features" loading="lazy">
-              <figcaption class="media-caption">SSv2: across layers and noise levels, the two coins share one color and the hand another; the flicked coin never joins the hand.</figcaption>
+              <img class="media-img" src="asset/pca_bt_prompt.gif" alt="Same B/T model with future frames hidden: without a prompt the cylinder and cube light up as the gripper passes before the cone does; with the prompt only the cone lights up from the first frame" loading="lazy">
+              <figcaption class="media-caption">Same B/T model, future frames hidden: without a prompt, the cylinder and cube light up as the gripper passes; with the prompt, only the cone, from the first frame.</figcaption>
             </figure>
           </div>
         </li>

@@ -1,15 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 218" width="520" height="218" role="img" aria-labelledby="t d">
-  <title id="t">Native-weight test-time memory in the query projection</title>
-  <desc id="d">Inside every attention layer, only the query projection holds memory: 2 of its 16 heads are fast weights, the other 14 keep their slow weights as a fallback, and the key, value, output and feed-forward weights stay fixed. The fast part is a block-diagonal update with 4 independent blocks. Each clean chunk writes the update with a delta rule and the next chunk reads it through its queries; there is no attention across chunks.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 258" width="520" height="258" role="img" aria-labelledby="t d">
+  <title id="t">Native-weight test-time memory with regeneration</title>
+  <desc id="d">Inside every attention layer, only the query projection holds the state: 2 of its 16 heads are fast weights with a block-diagonal update of 4 independent blocks, the other 14 heads keep their slow weights as a fallback, and keys and values keep describing the scene. Regeneration runs before every write: after writing a swap, the model imagines the reveal, clears its memory, and rewrites it from what it imagined, then moves on to the next swap. With regeneration the memory made no error over 1,000 swaps.</desc>
   <defs>
-    <marker id="ah-o" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#eb6834"/>
+    <marker id="ah-k" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4b5563"/>
+    </marker>
+    <marker id="ah-g" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9ca3af"/>
     </marker>
   </defs>
   <g font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
 
-    <!-- left: the projections of one attention layer, 16 heads each -->
-    <text x="10" y="15" font-size="12.5" fill="#6b7280">inside every attention layer</text>
+    <!-- top: the projections of one attention layer, 16 heads each -->
+    <text x="10" y="15" font-size="12.5" fill="#6b7280">every attention layer</text>
     <text x="294" y="33" font-size="12.5" font-weight="700" fill="#c2410c" text-anchor="end">2 fast heads</text>
 
     <text x="10" y="53" font-size="15" font-weight="700" fill="#111827">W<tspan font-size="10.5" dy="3">q</tspan></text>
@@ -32,7 +35,8 @@
     <text x="10" y="116" font-size="13" fill="#6b7280">W<tspan font-size="9.5" dy="3">v</tspan></text>
     <rect x="40" y="88" width="254" height="11" rx="2" fill="#e5e7eb"/>
     <rect x="40" y="106" width="254" height="11" rx="2" fill="#e5e7eb"/>
-    <text x="40" y="134" font-size="12" fill="#6b7280">K, V, output and FFN weights stay fixed</text>
+    <text x="40" y="136" font-size="12" fill="#374151"><tspan font-weight="700" fill="#c2410c">queries hold the state</tspan>: where to look</text>
+    <text x="40" y="152" font-size="12" fill="#6b7280">keys and values keep describing the scene</text>
 
     <!-- zoom: the fast heads' update is block-diagonal -->
     <g stroke="#eb6834" stroke-width="1" stroke-dasharray="3 3" fill="none" opacity="0.8">
@@ -52,17 +56,29 @@
     </g>
     <text x="417" y="157" font-size="12" fill="#374151" text-anchor="middle">4 independent blocks (multi-head)</text>
 
-    <!-- bottom: test-time training across chunks -->
-    <path d="M60 198 C60 217, 248 217, 248 198" fill="none" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="3 3"/>
-    <path d="M149.5 207.5 l9 9 M158.5 207.5 l-9 9" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
-    <text x="252" y="216" font-size="11.5" fill="#6b7280">no attention across chunks</text>
-    <rect x="10" y="168" width="100" height="28" rx="6" fill="#ffffff" stroke="#9ca3af" stroke-width="1.2"/>
-    <text x="60" y="187" font-size="12.5" fill="#111827" text-anchor="middle">clean chunk t</text>
-    <path d="M112 182 H194" stroke="#eb6834" stroke-width="2.4" fill="none" marker-end="url(#ah-o)"/>
-    <text x="153" y="177" font-size="13" font-weight="700" fill="#c2410c" text-anchor="middle">ΔW</text>
-    <rect x="198" y="168" width="100" height="28" rx="6" fill="#ffffff" stroke="#9ca3af" stroke-width="1.2" stroke-dasharray="4 3"/>
-    <text x="248" y="187" font-size="12.5" fill="#111827" text-anchor="middle">chunk t+1</text>
-    <text x="318" y="181" font-size="12" fill="#374151">write: delta rule, row norms kept</text>
-    <text x="318" y="199" font-size="12" fill="#374151">read: q = (W<tspan font-size="9" dy="2.5">q</tspan><tspan dy="-2.5"> + ΔW) x</tspan></text>
+    <!-- bottom: regeneration before every write -->
+    <path d="M10 168 H510" stroke="#e5e7eb" stroke-width="1"/>
+    <text x="10" y="186" font-size="12.5" fill="#111827"><tspan font-weight="700">regeneration</tspan><tspan fill="#6b7280">, before every write</tspan></text>
+    <text x="510" y="186" font-size="12.5" font-weight="700" fill="#c2410c" text-anchor="end">1,000 swaps, 0 errors</text>
+
+    <g stroke-width="1.2">
+      <rect x="10" y="197" width="92" height="26" rx="6" fill="#ffffff" stroke="#9ca3af"/>
+      <rect x="124" y="197" width="134" height="26" rx="6" fill="#fff7ed" stroke="#eb6834"/>
+      <rect x="280" y="197" width="96" height="26" rx="6" fill="#ffffff" stroke="#9ca3af"/>
+      <rect x="398" y="197" width="112" height="26" rx="6" fill="#fff7ed" stroke="#eb6834"/>
+    </g>
+    <g font-size="12" fill="#111827" text-anchor="middle">
+      <text x="56" y="214">write swap t</text>
+      <text x="191" y="214">imagine the reveal</text>
+      <text x="328" y="214">clear memory</text>
+      <text x="454" y="214">rewrite from it</text>
+    </g>
+    <g stroke="#4b5563" stroke-width="1.4" fill="none">
+      <path d="M104 210 H120" marker-end="url(#ah-k)"/>
+      <path d="M260 210 H276" marker-end="url(#ah-k)"/>
+      <path d="M378 210 H394" marker-end="url(#ah-k)"/>
+    </g>
+    <path d="M454 225 V238 H56 V228" fill="none" stroke="#9ca3af" stroke-width="1.3" marker-end="url(#ah-g)"/>
+    <text x="255" y="252" font-size="11.5" fill="#6b7280" text-anchor="middle">next swap</text>
   </g>
 </svg>
