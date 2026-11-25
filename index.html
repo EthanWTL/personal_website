@@ -53,13 +53,12 @@
           <div class="item-body">
             <div class="project-title">Native-Weight Test-Time Memory for Stateful Video World Models</div>
             <p>
-              <strong>Native query weights as a state pointer.</strong> We store a video world model's state in its own attention query weights rather than in an added memory module (to our knowledge, the first to do so): in every layer, two of the sixteen query heads act as fast weights, written once per clean chunk by a block-diagonal delta rule, while the other fourteen keep their slow weights as a fallback.
-              The intuition is state as a pointer into the world: the memory only changes where the model looks, while keys and values keep describing the scene.
-              This view also explains why writing to queries alone is so efficient: on the Shell Game hidden-state tracking benchmark, the model reaches 0.98 accuracy at 30 swaps (6&times; its 5-swap training horizon), versus 0.69 reported for the benchmark paper's test-time-training branch (LaCT), with about 1/6 of its added parameters and 1/24 of its fast-weight state.
+              <strong>Native query weights as a state pointer.</strong> We store a video world model's state in its own attention query weights instead of an added module (to our knowledge, the first): two of sixteen query heads per layer are fast weights, the other fourteen a slow fallback.
+              The memory changes only where the model looks, while keys and values keep describing the scene, which also explains its efficiency: 0.98 accuracy at 30 swaps on Shell Game, versus 0.69 reported for LaCT, with about 1/6 of its added parameters and 1/24 of its state.
             </p>
             <p>
-              <strong>Regeneration keeps the state consistent.</strong> Before every write, the model reads its own state by imagining the reveal, deciding where the ball is, then clears its memory and rewrites it from what it imagined.
-              The state stays stationary instead of drifting, so rollouts are in principle unbounded: over 1,000 swaps (200&times; the training horizon, 64 episodes), the memory never lost the ball, in both teacher-forced and fully self-generated rollouts.
+              <strong>Regeneration keeps the state consistent.</strong> Without it, the memory slowly drifts and is at chance by about 100 swaps. With regeneration, the model reads its own state before every write by imagining the reveal, deciding where the ball is, then clears its memory and rewrites it from what it imagined.
+              The state stays stationary, so rollouts are in principle unbounded: over 1,000 swaps (200&times; the training horizon, 64 episodes), the memory never lost the ball, in both teacher-forced and fully self-generated rollouts.
             </p>
           </div>
 
@@ -81,24 +80,27 @@
           <div class="item-body">
             <div class="project-title">Learning PCA-Discoverable Interaction Representations</div>
             <p>
-              <strong>Interactions show up only after they happen.</strong> In a frozen video model (Wan2.2-5B), the leading principal components of token features capture object segmentation and motion, but nothing anticipates an interaction: on CLEVRER and Something-Something V2, an object about to be hit looks like the static objects and changes only after the collision.
+              <strong>A group-variance loss makes interactions discoverable.</strong> A frozen video model marks an interaction only after it happens: in Wan2.2-5B on CLEVRER and Something-Something V2, an object about to be hit looks like the static objects until the collision.
+              We split the tokens into the object about to be interacted with and everything else, and train with L = 1 &minus; B/T, which raises the between-group variance B relative to the total variance T. This pushes the two groups apart, so the interaction becomes a leading direction that PCA finds on its own, without supervising PCA.
             </p>
             <p>
-              <strong>A group-variance loss pushes the interaction apart.</strong> We split the tokens into the object about to be interacted with and everything else, and train with L = 1 &minus; B/T, which raises the between-group variance B relative to the total variance T.
-              The two groups are pushed apart, so the interaction becomes a dominant direction of variance that PCA finds in its leading components without ever being supervised; in a video model trained on GridGrasp (a gripper grasping one object among look-alikes), B/T at the trained layers rises from 0.04&ndash;0.09 to 0.96&ndash;0.99 before contact.
-            </p>
-            <p>
-              <strong>Without a prompt it anticipates; with a prompt it points.</strong> With a text prompt, the leading components point straight at the item the model will grasp from the first frame, instead of following the gripper.
-              Without a prompt or future frames, the model falls back to anticipating the action: the marking follows the gripper, lighting up objects it passes on the way, and settles on the target only as the gripper reaches it. No label taught this switch.
-              The marked object is the one the model believes it will grasp: in its own generations it matches the object actually grasped, 104 of 104 times without a prompt, and 44 of 44 times when the model grasps a different object than the prompt asked for.
+              <strong>With a prompt it points; without one it anticipates.</strong> On GridGrasp (a gripper grasping one object among look-alikes), B/T before contact rises from 0.04&ndash;0.09 to 0.96&ndash;0.99, and the top PCs single out the object to be grasped.
+              With a text prompt they point at it from the first frame; without a prompt or future frames, they anticipate the action, lighting up objects as the gripper passes and settling on the target as it arrives. The marked object is the one the model believes it will grasp: 104 of 104 in prompt-free generation, and 44 of 44 when it grasps the wrong object.
             </p>
           </div>
 
           <div class="project-media media-grid media-grid-natural">
-            <figure class="media-item">
-              <img class="media-img" src="asset/pca_clevrer_collision.gif" alt="CLEVRER collision above the top-3 PCA components of frozen Wan2.2 layer 27 features" loading="lazy">
-              <figcaption class="media-caption">Frozen Wan2.2 on CLEVRER (red: moving object, cyan: the object it hits): the hit object keeps the static-object color until contact, then switches.</figcaption>
-            </figure>
+            <div class="media-col">
+              <figure class="media-item">
+                <img class="media-img" src="asset/pca_clevrer_collision.gif" alt="CLEVRER collision above the top-3 PCA components of frozen Wan2.2 layer 27 features" loading="lazy">
+                <figcaption class="media-caption">Frozen Wan2.2, CLEVRER: the object about to be hit (cyan) keeps the static-object color until contact.</figcaption>
+              </figure>
+
+              <figure class="media-item">
+                <img class="media-img" src="asset/pca_ssv2_collide.gif" alt="SSv2 video of a hand pushing one cup into another above the top-3 PCA components of frozen Wan2.2 layer 21 features" loading="lazy">
+                <figcaption class="media-caption">Frozen Wan2.2, SSv2: the two cups keep separate colors, even in contact.</figcaption>
+              </figure>
+            </div>
 
             <figure class="media-item">
               <img class="media-img" src="asset/pca_bt_pushapart.gif" alt="Four identical prisms: in the baseline's top-3 PCA components all four look alike; with the B/T loss the prism to grasp is separated from the others" loading="lazy">

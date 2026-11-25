@@ -319,6 +319,14 @@ p{margin:10px 0}
   aspect-ratio: auto;
 }
 
+/* Several figures stacked in one grid column */
+#projects .project-media.media-grid .media-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
 @media (max-width: 640px) {
   #projects .project-media.media-grid.media-grid-2 {
     grid-template-columns: 1fr;
